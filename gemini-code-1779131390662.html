@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>SmartBite</title>
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-main: #000000;
+            --text-secondary: #8e8e93;
+            --accent: #c75933; /* Deep Terracotta */
+            --border: #e5e5ea;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --card-bg: #1c1c1e;
+                --text-main: #ffffff;
+                --text-secondary: #8e8e93;
+                --border: #38383a;
+            }
+        }
+
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            /* Zostawiamy miejsce na dolny pasek nawigacji */
+            padding-bottom: 80px; 
+        }
+
+        /* NAGŁÓWEK */
+        header {
+            background-color: var(--bg-color);
+            padding: 20px 16px 10px;
+            font-size: 28px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* WIDOKI (Zakładki) */
+        .view { display: none; padding: 0 16px; }
+        .view.active { display: block; }
+
+        /* LISTY APPLE-STYLE */
+        .list-group {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .list-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-item:last-child { border-bottom: none; }
+        
+        .item-name { font-size: 17px; }
+        .item-category { font-size: 13px; color: var(--text-secondary); }
+
+        /* POLA TEKSTOWE */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            font-size: 17px;
+        }
+        button.add-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        /* DOLNY PASEK NAWIGACJI */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px; /* Miejsce na "pasek" iPhone'a */
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .tab-btn.active { color: var(--accent); }
+        .tab-icon { font-size: 24px; }
+    </style>
+</head>
+<body>
+
+    <header id="app-title">Pantry</header>
+
+    <main id="pantry-view" class="view active">
+        <div class="input-group">
+            <input type="text" id="pantry-input" placeholder="Add item (e.g. Flour)">
+            <button class="add-btn" onclick="addToPantry()">Add</button>
+        </div>
+        <div class="list-group" id="pantry-list">
+            </div>
+    </main>
+
+    <main id="recipes-view" class="view">
+        <div class="list-group" id="recipes-list">
+            </div>
+    </main>
+
+    <nav class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('pantry')">
+            <span class="tab-icon">🏠</span>
+            <span>Pantry</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('recipes')">
+            <span class="tab-icon">🍴</span>
+            <span>Recipes</span>
+        </button>
+    </nav>
+
+    <script>
+        // --- BAZA DANYCH W PRZEGLĄDARCE (Zamiast SwiftData) ---
+        // Ładujemy dane z telefonu, albo ustawiamy puste tablice
+        let pantryItems = JSON.parse(localStorage.getItem('smartbite_pantry')) || [];
+        let recipes = JSON.parse(localStorage.getItem('smartbite_recipes')) || [];
+
+        // Przykładowe przepisy dodawane przy pierwszym uruchomieniu
+        if (recipes.length === 0) {
+            recipes = [
+                { name: "Spag Bol", ingredients: ["Spaghetti", "Mince", "Tinned tomatoes", "Onion"] },
+                { name: "Carbonara", ingredients: ["Spaghetti", "Bacon", "Eggs", "Parmesan"] }
+            ];
+            saveData();
+        }
+
+        // --- LOGIKA ---
+        function switchTab(tab) {
+            // Ukryj wszystkie widoki
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // Odznacz wszystkie przyciski
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            // Pokaż wybrany
+            document.getElementById(`${tab}-view`).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Zmień tytuł
+            document.getElementById('app-title').innerText = tab === 'pantry' ? 'My Pantry' : 'Recipes';
+        }
+
+        function addToPantry() {
+            const input = document.getElementById('pantry-input');
+            const name = input.value.trim();
+            
+            if (name && !pantryItems.includes(name)) {
+                // Dodajemy wielką literą
+                const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+                pantryItems.push(capitalized);
+                input.value = '';
+                
+                // Haptyka na telefonie (jeśli wspierana przez przeglądarkę)
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                saveData();
+                renderPantry();
+            }
+        }
+
+        function removePantryItem(name) {
+            pantryItems = pantryItems.filter(i => i !== name);
+            if (navigator.vibrate) navigator.vibrate(50);
+            saveData();
+            renderPantry();
+        }
+
+        function saveData() {
+            localStorage.setItem('smartbite_pantry', JSON.stringify(pantryItems));
+            localStorage.setItem('smartbite_recipes', JSON.stringify(recipes));
+        }
+
+        // --- RYSOWANIE INTERFEJSU ---
+        function renderPantry() {
+            const list = document.getElementById('pantry-list');
+            list.innerHTML = '';
+            
+            if (pantryItems.length === 0) {
+                list.innerHTML = '<div class="list-item"><span class="item-category">Your pantry is empty.</span></div>';
+                return;
+            }
+
+            pantryItems.sort().forEach(item => {
+                list.innerHTML += `
+                    <div class="list-item" onclick="removePantryItem('${item}')">
+                        <span class="item-name">${item}</span>
+                        <span class="item-category">Remove</span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderRecipes() {
+            const list = document.getElementById('recipes-list');
+            list.innerHTML = '';
+            
+            recipes.forEach(recipe => {
+                list.innerHTML += `
+                    <div class="list-item" style="flex-direction: column; align-items: flex-start;">
+                        <div class="item-name" style="font-weight: bold; color: var(--accent); margin-bottom: 4px;">${recipe.name}</div>
+                        <div class="item-category">${recipe.ingredients.join(', ')}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // Uruchamiamy przy starcie
+        renderPantry();
+        renderRecipes();
+    </script>
+</body>
+</html>

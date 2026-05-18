@@ -1,0 +1,9 @@
+{
+  "name": "SmartBite",
+  "short_name": "SmartBite",
+  "description": "Your personal pantry and recipe manager.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#c75933"
+}
