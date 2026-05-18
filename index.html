@@ -16,76 +16,54 @@
             --sec: #8e8e93;
             --accent: #ebd9cc;
             --border: rgba(255, 255, 255, 0.1);
-            --glass: rgba(30, 30, 30, 0.8);
+            --glass: rgba(28, 28, 30, 0.7);
         }
-        
         * { box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-        
         body { 
             margin: 0; padding: 0; background: var(--bg); color: var(--text); 
             padding-top: env(safe-area-inset-top);
-            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            padding-bottom: calc(100px + env(safe-area-inset-bottom));
             min-height: 100vh;
         }
-
         header { 
             position: sticky; top: 0; background: var(--glass); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%);
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
             z-index: 100; border-bottom: 0.5px solid var(--border);
         }
-        
         h1 { margin: 0; font-size: 32px; font-weight: 700; }
         .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; }
-
-        .view { display: none; padding: 20px; animation: fadeIn 0.2s ease; }
-        .view.active { display: block; }
+        .view { display: none; padding: 20px; }
+        .view.active { display: block; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .card-group { background: var(--card); border-radius: 12px; margin-bottom: 20px; overflow: hidden; border: 0.5px solid var(--border); }
+        .card-group { background: var(--card); border-radius: 14px; margin-bottom: 25px; overflow: hidden; border: 0.5px solid var(--border); }
         .card-row { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .card-row:last-child { border-bottom: none; }
-        .card-row:active { background: rgba(255,255,255,0.05); }
-
-        .ios-input { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
-        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 12px; align-items: center; margin-bottom: 20px; }
+        .ios-input { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
+        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 12px; align-items: center; margin-bottom: 20px; border: 0.5px solid var(--border); }
         .search-bar input { flex: 1; border: none; background: transparent; color: #fff; font-size: 17px; padding: 10px 0; outline: none; }
-        
-        .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; padding: 0; }
+        .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; }
         .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; }
-
-        /* NAV MENU - FIXED TO BOTTOM */
+        
         nav { 
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            background: var(--glass); backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
             border-top: 0.5px solid var(--border);
             display: flex; justify-content: space-around;
             padding-bottom: env(safe-area-inset-bottom);
-            padding-top: 12px; z-index: 1000;
+            padding-top: 15px; z-index: 1000;
         }
-        
         .nav-item { flex: 1; text-align: center; color: var(--sec); font-size: 10px; font-weight: 600; border: none; background: none; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 26px; height: 26px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 2.2; }
 
-        /* MODAL */
-        .modal-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; 
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .modal-overlay.kbd { align-items: center; }
-
-        .modal { 
-            background: var(--card); width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; 
-            display: flex; flex-direction: column; transition: 0.3s;
-        }
-        .kbd .modal { border-radius: 20px; width: 95%; margin-bottom: 50px; }
-        
-        .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
-        .modal-body { padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        
-        .empty { text-align: center; padding: 40px 20px; color: var(--sec); }
+        .modal { background: var(--card); width: 100%; max-height: 90vh; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0, 0.5, 0.5, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); background: var(--card); border-radius: 25px 25px 0 0;}
+        .modal-body { padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 40px; }
+        .empty { text-align: center; padding: 60px 20px; color: var(--sec); font-size: 16px; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
@@ -93,25 +71,17 @@
 </head>
 <body>
 
-    <header>
-        <h1 id="view-title">Planner</h1>
-        <button class="header-btn" id="header-action"></button>
-    </header>
+    <header><h1 id="view-title">Planner</h1><button class="header-btn" id="header-action"></button></header>
 
     <main id="v-planner" class="view active"><div id="list-planner"></div></main>
     <main id="v-shop" class="view"><div id="list-shop"></div></main>
     <main id="v-pantry" class="view">
-        <div class="search-bar">
-            <input type="text" id="pantry-in" placeholder="Add to pantry...">
-            <button class="btn-add" onclick="addToPantry()">+</button>
-        </div>
+        <div class="search-bar"><input type="text" id="pantry-in" placeholder="Add to pantry..."><button class="btn-add" onclick="addP()">+</button></div>
         <div id="list-pantry"></div>
     </main>
     <main id="v-recipes" class="view"><div id="list-recipes"></div></main>
     <main id="v-cook" class="view">
-        <div class="search-bar">
-            <input type="text" id="cook-in" placeholder="Search by ingredient..." oninput="renderCook()">
-        </div>
+        <div class="search-bar"><input type="text" id="cook-in" placeholder="What ingredients do you have?" oninput="renderCook()"></div>
         <div id="list-cook"></div>
     </main>
 
@@ -135,10 +105,7 @@
 
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal">
-            <div class="modal-header">
-                <span id="modal-title" style="font-weight:800; font-size:20px;"></span>
-                <span style="color:var(--accent); font-weight:600;" onclick="closeModal()">Close</span>
-            </div>
+            <div class="modal-header"><span id="modal-title" style="font-weight:800; font-size:20px;"></span><span style="color:var(--accent); font-weight:600;" onclick="closeM()">Close</span></div>
             <div class="modal-body" id="modal-body"></div>
         </div>
     </div>
@@ -152,192 +119,108 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const dbRef = firebase.database().ref('smartbite');
+const database = firebase.database();
 let db = { plan: [], pantry: [], dishes: [], checked: [] };
 
-// --- CORE LOGIC ---
-dbRef.on('value', (snap) => {
-    const data = snap.val();
-    if (data) {
-        db = data;
-        // Zabezpieczenie Plannera
-        if (!db.plan || db.plan.length === 0) {
-            db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
-        }
-        if (!db.pantry) db.pantry = [];
-        if (!db.dishes) db.dishes = [];
-        if (!db.checked) db.checked = [];
-        renderAll();
-    } else {
-        db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
-        save();
-    }
+// --- MAGIC RECOVERY LOGIC ---
+// Sprawdzamy oba foldery, w których mogły zapisać się przepisy
+database.ref('/').on('value', (snap) => {
+    const allData = snap.val() || {};
+    // Łączymy dane z "smartbite" i "smartbite_shared_data"
+    const d1 = allData.smartbite || {};
+    const d2 = allData.smartbite_shared_data || {};
+    
+    db.dishes = [...(d1.dishes || []), ...(d2.dishes || [])];
+    // Usuwamy duplikaty przepisów po nazwie
+    db.dishes = db.dishes.filter((v,i,a)=>a.findIndex(t=>(t.name === v.name))===i);
+    
+    db.pantry = d1.pantry || d2.pantry || [];
+    db.plan = d1.plan || d2.plan || ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
+    db.checked = d1.checked || d2.checked || [];
+    
+    renderAll();
 });
 
-function save() { dbRef.set(db); }
+function save() { database.ref('smartbite').set(db); database.ref('smartbite_shared_data').set(db); }
 
-function switchTab(id, title) {
+function switchTab(id, t) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('v-'+id).classList.add('active');
     event.currentTarget.classList.add('active');
-    document.getElementById('view-title').innerText = title;
-    
-    const action = document.getElementById('header-action');
-    action.style.display = (id === 'shop' || id === 'recipes') ? 'block' : 'none';
-    if(id === 'shop') { action.innerText = 'Clear'; action.onclick = () => { db.checked = []; save(); }; }
-    if(id === 'recipes') { action.innerText = '+ Add'; action.onclick = () => openRecipeEditor(); }
+    document.getElementById('view-title').innerText = t;
+    const btn = document.getElementById('header-action');
+    btn.style.display = (id === 'shop' || id === 'recipes') ? 'block' : 'none';
+    if(id === 'shop') { btn.innerText = 'Clear'; btn.onclick = () => { db.checked = []; save(); }; }
+    if(id === 'recipes') { btn.innerText = '+ Add'; btn.onclick = () => openEdit(); }
     renderAll();
 }
 
-function openModal(title, html) {
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-body').innerHTML = html;
-    document.getElementById('modal-overlay').classList.add('active');
-}
-function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
+function openM(t, h) { document.getElementById('modal-title').innerText = t; document.getElementById('modal-body').innerHTML = h; document.getElementById('modal-overlay').classList.add('active'); }
+function closeM() { document.getElementById('modal-overlay').classList.remove('active'); }
 
-// --- RENDERERS ---
-function renderAll() {
-    renderPlanner();
-    renderShop();
-    renderPantry();
-    renderRecipes();
-    renderCook();
-}
+function renderAll() { renderPlan(); renderShop(); renderPan(); renderRec(); renderCook(); }
 
-function renderPlanner() {
+function renderPlan() {
     let h = '<div class="card-group">';
-    db.plan.forEach((p, i) => {
-        h += `<div class="card-row" onclick="pickDish(${i})">
-            <b>${p.day}</b>
-            <span style="color:var(--accent)">${p.dish || 'Plan...'}</span>
-        </div>`;
-    });
+    db.plan.forEach((p, i) => h += `<div class="card-row" onclick="pickD(${i})"><b>${p.day}</b><span style="color:var(--accent)">${p.dish || 'Plan...'}</span></div>`);
     document.getElementById('list-planner').innerHTML = h + '</div>';
 }
-
-function pickDish(idx) {
-    let h = '<div class="card-group"><div class="card-row" style="color:red" onclick="setDish('+idx+', null)">Clear Day</div>';
-    db.dishes.forEach(d => {
-        h += `<div class="card-row" onclick="setDish(${idx}, '${d.name}')">${d.name}</div>`;
-    });
-    openModal('Select Meal', h + '</div>');
+function pickD(i) {
+    let h = '<div class="card-group"><div class="card-row" style="color:red" onclick="setD('+i+', null)">Clear Day</div>';
+    db.dishes.forEach(d => h += `<div class="card-row" onclick="setD(${i},'${d.name}')">${d.name}</div>`);
+    openM('Meal for ' + db.plan[i].day, h + '</div>');
 }
-function setDish(i, n) { db.plan[i].dish = n; save(); closeModal(); }
+function setD(i, n) { db.plan[i].dish = n; save(); closeM(); }
 
-function renderRecipes() {
-    if (!db.dishes || db.dishes.length === 0) {
-        document.getElementById('list-recipes').innerHTML = '<div class="empty">No recipes. Click + Add to create.</div>';
-        return;
-    }
+function renderRec() {
+    if (!db.dishes.length) { document.getElementById('list-recipes').innerHTML = '<div class="empty">No recipes found.</div>'; return; }
     let h = '<div class="card-group">';
-    db.dishes.forEach(d => {
-        h += `<div class="card-row" onclick="openRecipeEditor(${d.id})">
-            <div><b>${d.name}</b><div style="font-size:12px;color:var(--sec)">${d.ingredients.join(', ')}</div></div>
-        </div>`;
-    });
+    db.dishes.forEach(d => h += `<div class="card-row" onclick="openEdit(${d.id})"><div><b>${d.name}</b><div style="font-size:12px;color:var(--sec)">${d.ingredients.join(', ')}</div></div></div>`);
     document.getElementById('list-recipes').innerHTML = h + '</div>';
 }
 
 let curId = null; let curIngs = [];
-function openRecipeEditor(id = null) {
-    curId = id;
-    const dish = db.dishes.find(x => x.id === id);
-    curIngs = dish ? [...dish.ingredients] : [];
-    let h = `
-        <input type="text" id="edit-name" class="ios-input" value="${dish?dish.name:''}" placeholder="Dish Name">
-        <div id="edit-ings-list" class="card-group"></div>
-        <div class="search-bar">
-            <input type="text" id="edit-ing-in" placeholder="Ingredient...">
-            <button class="btn-add" onclick="addIngToEditor()">+</button>
-        </div>
-        <button class="btn-primary" onclick="saveRecipe()">Save Recipe</button>
-        ${id ? `<button style="color:red;width:100%;background:none;border:none;margin-top:20px;" onclick="deleteRecipe()">Delete Recipe</button>` : ''}
-    `;
-    openModal(id ? 'Edit Recipe' : 'New Recipe', h);
-    renderEditorIngs();
+function openEdit(id = null) {
+    curId = id; const d = db.dishes.find(x => x.id === id); curIngs = d ? [...d.ingredients] : [];
+    let h = `<input type="text" id="en" class="ios-input" value="${d?d.name:''}" placeholder="Recipe Name"><div id="ei" class="card-group"></div>
+    <div class="search-bar"><input type="text" id="ein" placeholder="Ingredient..."><button class="btn-add" onclick="addI()">+</button></div>
+    <button class="btn-primary" onclick="saveR()">Save Recipe</button>
+    ${id ? `<button style="color:red;width:100%;background:none;border:none;margin-top:20px;" onclick="delR()">Delete Recipe</button>` : ''}`;
+    openM(id?'Edit':'New', h); renderI();
 }
+function renderI() { document.getElementById('ei').innerHTML = curIngs.map((n, i) => `<div class="card-row"><span>${n}</span><span style="color:red" onclick="curIngs.splice(${i},1);renderI()">Del</span></div>`).join(''); }
+function addI() { const v = document.getElementById('ein').value.trim(); if(v){curIngs.push(v); document.getElementById('ein').value=''; renderI();}}
+function saveR() {
+    const n = document.getElementById('en').value.trim(); if(!n) return;
+    if(curId){ const d=db.dishes.find(x=>x.id===curId); d.name=n; d.ingredients=curIngs; }
+    else db.dishes.push({id:Date.now(), name:n, ingredients:curIngs});
+    save(); closeM();
+}
+function delR() { db.dishes=db.dishes.filter(x=>x.id!==curId); save(); closeM(); }
 
-function renderEditorIngs() {
-    document.getElementById('edit-ings-list').innerHTML = curIngs.map((ing, i) => `
-        <div class="card-row"><span>${ing}</span><span style="color:red" onclick="curIngs.splice(${i},1);renderEditorIngs()">Del</span></div>
-    `).join('');
-}
-function addIngToEditor() {
-    const v = document.getElementById('edit-ing-in').value.trim();
-    if (v) { curIngs.push(v); document.getElementById('edit-ing-in').value = ''; renderEditorIngs(); }
-}
-function saveRecipe() {
-    const name = document.getElementById('edit-name').value.trim();
-    if (!name) return;
-    if (curId) {
-        const d = db.dishes.find(x => x.id === curId);
-        d.name = name; d.ingredients = curIngs;
-    } else {
-        db.dishes.push({ id: Date.now(), name: name, ingredients: curIngs });
-    }
-    save(); closeModal();
-}
-function deleteRecipe() {
-    db.dishes = db.dishes.filter(x => x.id !== curId);
-    save(); closeModal();
-}
-
-function renderPantry() {
+function renderPan() {
     let h = '<div class="card-group">';
-    db.pantry.forEach((item, i) => {
-        h += `<div class="card-row">
-            <span>${item.name}</span>
-            <span style="color:red" onclick="db.pantry.splice(${i},1);save()">Del</span>
-        </div>`;
-    });
+    db.pantry.forEach((item, i) => h += `<div class="card-row"><span>${item.name}</span><span style="color:red" onclick="db.pantry.splice(${i},1);save()">Del</span></div>`);
     document.getElementById('list-pantry').innerHTML = h + '</div>';
 }
-function addToPantry() {
-    const v = document.getElementById('pantry-in').value.trim();
-    if (v) { db.pantry.push({ name: v }); document.getElementById('pantry-in').value = ''; save(); }
-}
+function addP() { const v = document.getElementById('pantry-in').value.trim(); if(v){db.pantry.push({name:v}); document.getElementById('pantry-in').value=''; save();}}
 
 function renderShop() {
-    let needed = [];
-    db.plan.forEach(p => {
-        if (p.dish) {
-            const d = db.dishes.find(x => x.name === p.dish);
-            if (d) d.ingredients.forEach(ing => { if (!needed.includes(ing)) needed.push(ing); });
-        }
-    });
-    if (needed.length === 0) {
-        document.getElementById('list-shop').innerHTML = '<div class="empty">Nothing to buy.</div>';
-        return;
-    }
+    let l = []; db.plan.forEach(p => { if(p.dish){ const d=db.dishes.find(x=>x.name===p.dish); if(d) d.ingredients.forEach(i=>{if(!l.includes(i))l.push(i);}); }});
+    if(!l.length){ document.getElementById('list-shop').innerHTML='<div class="empty">Shop list is empty.</div>'; return; }
     let h = '<div class="card-group">';
-    needed.forEach(ing => {
-        const isDone = db.checked.includes(ing);
-        h += `<div class="card-row" onclick="toggleCheck('${ing}')">
-            <span style="${isDone ? 'text-decoration:line-through;color:var(--sec)' : ''}">${ing}</span>
-            <span>${isDone ? '✅' : '⚪️'}</span>
-        </div>`;
-    });
+    l.forEach(i => h += `<div class="card-row" onclick="tC('${i}')"><span style="${db.checked.includes(i)?'text-decoration:line-through;color:var(--sec)':''}">${i}</span><span>${db.checked.includes(i)?'✅':'⚪️'}</span></div>`);
     document.getElementById('list-shop').innerHTML = h + '</div>';
 }
-function toggleCheck(ing) {
-    if (db.checked.includes(ing)) db.checked = db.checked.filter(x => x !== ing);
-    else db.checked.push(ing);
-    save();
-}
+function tC(i) { if(db.checked.includes(i)) db.checked=db.checked.filter(x=>x!==i); else db.checked.push(i); save(); }
 
 function renderCook() {
-    const val = document.getElementById('cook-in').value.toLowerCase();
-    if (!val) {
-        document.getElementById('list-cook').innerHTML = '<div class="empty">Type an ingredient.</div>';
-        return;
-    }
-    const matches = db.dishes.filter(d => d.ingredients.some(i => i.toLowerCase().includes(val)));
+    const v = document.getElementById('cook-in').value.toLowerCase();
+    if(!v){ document.getElementById('list-cook').innerHTML='<div class="empty">Enter ingredient to find recipes.</div>'; return; }
+    const m = db.dishes.filter(d => d.ingredients.some(i => i.toLowerCase().includes(v)));
     let h = '<div class="card-group">';
-    matches.forEach(d => {
-        h += `<div class="card-row"><b>${d.name}</b><span style="font-size:12px">${d.ingredients.length} items</span></div>`;
-    });
+    m.forEach(d => h += `<div class="card-row"><b>${d.name}</b><span style="font-size:12px">${d.ingredients.length} items</span></div>`);
     document.getElementById('list-cook').innerHTML = h + '</div>';
 }
 </script>
