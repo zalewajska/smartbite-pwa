@@ -9,70 +9,83 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --bg-color: #000000;
-            --card-bg: #1c1c1e;
-            --input-bg: #2c2c2e;
-            --text-main: #ffffff;
-            --text-sec: #8e8e93;
-            --accent: #ebd9cc; 
-            --accent-muted: rgba(235, 217, 204, 0.15);
-            --border: rgba(84, 84, 88, 0.4);
-            --glass-bg: rgba(30, 30, 30, 0.8);
+            --bg: #000000;
+            --card: #1c1c1e;
+            --input: #2c2c2e;
+            --text: #ffffff;
+            --sec: #8e8e93;
+            --accent: #ebd9cc;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(30, 30, 30, 0.8);
         }
         
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); padding-bottom: 120px; padding-top: env(safe-area-inset-top); overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         
+        body { 
+            margin: 0; padding: 0; background: var(--bg); color: var(--text); 
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            min-height: 100vh;
+        }
+
         header { 
-            position: sticky; top: 0; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 12px 20px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 0.5px solid var(--border);
+            position: sticky; top: 0; background: var(--glass); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+            z-index: 100; border-bottom: 0.5px solid var(--border);
         }
-        h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+        
+        h1 { margin: 0; font-size: 32px; font-weight: 700; }
         .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; }
 
-        .tab-content { display: none; padding: 16px 20px; }
-        .tab-content.active { display: block; }
+        .view { display: none; padding: 20px; animation: fadeIn 0.2s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .card-group { background: var(--card-bg); border-radius: 12px; margin-bottom: 24px; overflow: hidden; border: 0.5px solid var(--border); }
-        .card-row { padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .card-group { background: var(--card); border-radius: 12px; margin-bottom: 20px; overflow: hidden; border: 0.5px solid var(--border); }
+        .card-row { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .card-row:last-child { border-bottom: none; }
-        
-        .ios-input { width: 100%; padding: 14px 16px; border-radius: 12px; border: none; background: var(--input-bg); color: var(--text-main); font-size: 17px; outline: none; margin-bottom: 15px; }
-        
-        .search-bar { display: flex; gap: 10px; margin-bottom: 16px; background: var(--input-bg); padding: 4px 8px 4px 16px; border-radius: 14px; align-items: center; }
-        .search-bar input { flex: 1; border: none; background: transparent; font-size: 17px; color: var(--text-main); outline: none; padding: 10px 0; }
-        .btn-add { color: var(--accent); background: none; border: none; font-size: 26px; }
+        .card-row:active { background: rgba(255,255,255,0.05); }
 
-        .ios-btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; }
+        .ios-input { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
+        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 12px; align-items: center; margin-bottom: 20px; }
+        .search-bar input { flex: 1; border: none; background: transparent; color: #fff; font-size: 17px; padding: 10px 0; outline: none; }
+        
+        .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; padding: 0; }
+        .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; }
 
+        /* NAV MENU - FIXED TO BOTTOM */
         nav { 
-            position: fixed; bottom: 0; width: 100%; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-            border-top: 0.5px solid var(--border); display: flex; justify-content: space-around; 
-            padding-bottom: env(safe-area-inset-bottom); padding-top: 10px; z-index: 100;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border-top: 0.5px solid var(--border);
+            display: flex; justify-content: space-around;
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-top: 12px; z-index: 1000;
         }
-        .nav-item { flex: 1; text-align: center; color: var(--text-sec); font-size: 10px; font-weight: 600; border: none; background: none; }
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 4px auto; fill: none; stroke: currentColor; stroke-width: 2.2; }
         
-        /* MODAL FIX */
+        .nav-item { flex: 1; text-align: center; color: var(--sec); font-size: 10px; font-weight: 600; border: none; background: none; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { width: 26px; height: 26px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+        /* MODAL */
         .modal-overlay { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end;
+            background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; 
         }
         .modal-overlay.active { display: flex; }
-        .modal-overlay.keyboard-active { align-items: flex-start; padding-top: 50px; } 
+        .modal-overlay.kbd { align-items: center; }
 
         .modal { 
-            background: var(--card-bg); width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; 
-            display: flex; flex-direction: column; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            background: var(--card); width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; 
+            display: flex; flex-direction: column; transition: 0.3s;
         }
-        .keyboard-active .modal { border-radius: 24px; width: 95%; margin: 0 auto; max-height: 80vh; }
+        .kbd .modal { border-radius: 20px; width: 95%; margin-bottom: 50px; }
         
-        .modal-drag { width: 40px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 12px auto 8px; opacity: 0.3;}
-        .modal-header { padding: 10px 20px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border);}
+        .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
         .modal-body { padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sec); font-size: 16px; }
+        .empty { text-align: center; padding: 40px 20px; color: var(--sec); }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
@@ -81,49 +94,51 @@
 <body>
 
     <header>
-        <h1 id="page-title">Planner</h1>
-        <button class="header-btn" id="header-action" style="display:none;"></button>
+        <h1 id="view-title">Planner</h1>
+        <button class="header-btn" id="header-action"></button>
     </header>
 
-    <main id="tab-planner" class="tab-content active"><div id="planner-list"></div></main>
-    <main id="tab-shop" class="tab-content"><div id="shop-list"></div></main>
-    <main id="tab-pantry" class="tab-content">
+    <main id="v-planner" class="view active"><div id="list-planner"></div></main>
+    <main id="v-shop" class="view"><div id="list-shop"></div></main>
+    <main id="v-pantry" class="view">
         <div class="search-bar">
-            <input type="text" id="pantry-input" placeholder="Add item..." onfocus="onIFocus()" onblur="onIBlur()">
-            <button class="btn-add" onclick="addItem('pantry')">+</button>
+            <input type="text" id="pantry-in" placeholder="Add to pantry...">
+            <button class="btn-add" onclick="addToPantry()">+</button>
         </div>
-        <div id="pantry-list"></div>
+        <div id="list-pantry"></div>
     </main>
-    <main id="tab-recipes" class="tab-content"><div id="recipes-list"></div></main>
-    <main id="tab-cook" class="tab-content"><div id="cook-results"></div></main>
+    <main id="v-recipes" class="view"><div id="list-recipes"></div></main>
+    <main id="v-cook" class="view">
+        <div class="search-bar">
+            <input type="text" id="cook-in" placeholder="Search by ingredient..." oninput="renderCook()">
+        </div>
+        <div id="list-cook"></div>
+    </main>
 
     <nav>
         <button class="nav-item active" onclick="switchTab('planner', 'Planner')">
-            <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            Planner
+            <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Planner
         </button>
         <button class="nav-item" onclick="switchTab('shop', 'Shop')">
-            <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            Shop
+            <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Shop
         </button>
         <button class="nav-item" onclick="switchTab('pantry', 'Pantry')">
-            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Pantry
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Pantry
         </button>
         <button class="nav-item" onclick="switchTab('recipes', 'Recipes')">
-            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            Recipes
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Recipes
         </button>
         <button class="nav-item" onclick="switchTab('cook', 'Cook Now')">
-            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
-            Cook Now
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2c0 10 8 10 8 18a8 8 0 0 1-16 0c0-8 8-8 8-18z"></path></svg>Cook
         </button>
     </nav>
 
-    <div class="modal-overlay" id="modal">
+    <div class="modal-overlay" id="modal-overlay">
         <div class="modal">
-            <div class="modal-drag"></div>
-            <div class="modal-header"><span id="modal-title">Edit</span><span style="color:var(--accent);" onclick="closeModal()">Close</span></div>
+            <div class="modal-header">
+                <span id="modal-title" style="font-weight:800; font-size:20px;"></span>
+                <span style="color:var(--accent); font-weight:600;" onclick="closeModal()">Close</span>
+            </div>
             <div class="modal-body" id="modal-body"></div>
         </div>
     </div>
@@ -133,128 +148,198 @@ const firebaseConfig = {
     apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow",
     authDomain: "smartbite-67853.firebaseapp.com",
     projectId: "smartbite-67853",
-    storageBucket: "smartbite-67853.firebasestorage.app",
-    messagingSenderId: "355276308842",
-    appId: "1:355276308842:web:86351c955c63c372986513",
     databaseURL: "https://smartbite-67853-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
 firebase.initializeApp(firebaseConfig);
-const dbRef = firebase.database().ref('smartbite_shared_data');
+const dbRef = firebase.database().ref('smartbite');
 let db = { plan: [], pantry: [], dishes: [], checked: [] };
 
+// --- CORE LOGIC ---
 dbRef.on('value', (snap) => {
     const data = snap.val();
     if (data) {
-        db.plan = data.plan || [];
-        db.pantry = data.pantry || [];
-        db.dishes = data.dishes || [];
-        db.checked = data.checked || [];
-        if (db.plan.length === 0) db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d => ({day: d, dish: null}));
+        db = data;
+        // Zabezpieczenie Plannera
+        if (!db.plan || db.plan.length === 0) {
+            db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
+        }
+        if (!db.pantry) db.pantry = [];
+        if (!db.dishes) db.dishes = [];
+        if (!db.checked) db.checked = [];
         renderAll();
-    } else { initDB(); }
+    } else {
+        db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
+        save();
+    }
 });
 
 function save() { dbRef.set(db); }
-function initDB() {
-    db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d => ({day: d, dish: null}));
-    save();
-}
-
-function onIFocus() { document.getElementById('modal').classList.add('keyboard-active'); }
-function onIBlur() { setTimeout(() => document.getElementById('modal').classList.remove('keyboard-active'), 100); }
 
 function switchTab(id, title) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('tab-'+id).classList.add('active');
+    document.getElementById('v-'+id).classList.add('active');
     event.currentTarget.classList.add('active');
-    document.getElementById('page-title').innerText = title;
+    document.getElementById('view-title').innerText = title;
     
-    const act = document.getElementById('header-action');
-    act.style.display = (id === 'shop' || id === 'recipes') ? 'block' : 'none';
-    if(id === 'shop') { act.innerText = 'Clear'; act.onclick = () => { db.checked = []; save(); }; }
-    if(id === 'recipes') { act.innerText = '+ Add'; act.onclick = () => openRecipeModal(); }
+    const action = document.getElementById('header-action');
+    action.style.display = (id === 'shop' || id === 'recipes') ? 'block' : 'none';
+    if(id === 'shop') { action.innerText = 'Clear'; action.onclick = () => { db.checked = []; save(); }; }
+    if(id === 'recipes') { action.innerText = '+ Add'; action.onclick = () => openRecipeEditor(); }
     renderAll();
 }
 
 function openModal(title, html) {
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-body').innerHTML = html;
-    document.getElementById('modal').style.display = 'flex';
-    setTimeout(() => document.getElementById('modal-overlay').classList.add('active'), 10);
+    document.getElementById('modal-overlay').classList.add('active');
 }
-// Poprawiony system otwierania/zamykania
-function openM(title, html) {
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-body').innerHTML = html;
-    document.getElementById('modal').classList.add('active');
-}
-function closeModal() { document.getElementById('modal').classList.remove('active'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
 
-function renderAll() { renderPlanner(); renderRecipes(); renderPantry(); renderShop(); }
+// --- RENDERERS ---
+function renderAll() {
+    renderPlanner();
+    renderShop();
+    renderPantry();
+    renderRecipes();
+    renderCook();
+}
 
 function renderPlanner() {
     let h = '<div class="card-group">';
     db.plan.forEach((p, i) => {
-        h += `<div class="card-row" onclick="pickD(${i})"><b>${p.day}</b><span style="color:var(--accent)">${p.dish || 'Plan...'}</span></div>`;
+        h += `<div class="card-row" onclick="pickDish(${i})">
+            <b>${p.day}</b>
+            <span style="color:var(--accent)">${p.dish || 'Plan...'}</span>
+        </div>`;
     });
-    document.getElementById('planner-list').innerHTML = h + '</div>';
+    document.getElementById('list-planner').innerHTML = h + '</div>';
 }
-function pickD(idx) {
-    let h = '<div class="card-group"><div class="card-row" onclick="setD('+idx+', null)">Clear</div>';
-    db.dishes.forEach(d => h += `<div class="card-row" onclick="setD(${idx}, '${d.name}')">${d.name}</div>`);
-    openM('Select Dish', h + '</div>');
+
+function pickDish(idx) {
+    let h = '<div class="card-group"><div class="card-row" style="color:red" onclick="setDish('+idx+', null)">Clear Day</div>';
+    db.dishes.forEach(d => {
+        h += `<div class="card-row" onclick="setDish(${idx}, '${d.name}')">${d.name}</div>`;
+    });
+    openModal('Select Meal', h + '</div>');
 }
-function setD(i, n) { db.plan[i].dish = n; save(); closeModal(); }
+function setDish(i, n) { db.plan[i].dish = n; save(); closeModal(); }
 
 function renderRecipes() {
-    if(!db.dishes || db.dishes.length === 0) {
-        document.getElementById('recipes-list').innerHTML = '<div class="empty-state">No recipes added yet.</div>';
+    if (!db.dishes || db.dishes.length === 0) {
+        document.getElementById('list-recipes').innerHTML = '<div class="empty">No recipes. Click + Add to create.</div>';
         return;
     }
     let h = '<div class="card-group">';
     db.dishes.forEach(d => {
-        h += `<div class="card-row" onclick="openRecipeModal(${d.id})"><div><b>${d.name}</b><div style="font-size:12px;color:var(--text-sec)">${d.ingredients.join(', ')}</div></div></div>`;
+        h += `<div class="card-row" onclick="openRecipeEditor(${d.id})">
+            <div><b>${d.name}</b><div style="font-size:12px;color:var(--sec)">${d.ingredients.join(', ')}</div></div>
+        </div>`;
     });
-    document.getElementById('recipes-list').innerHTML = h + '</div>';
+    document.getElementById('list-recipes').innerHTML = h + '</div>';
 }
 
-let eId = null; let eIngs = [];
-function openRecipeModal(id) {
-    eId = id; const d = db.dishes.find(x => x.id === id); eIngs = d ? [...d.ingredients] : [];
+let curId = null; let curIngs = [];
+function openRecipeEditor(id = null) {
+    curId = id;
+    const dish = db.dishes.find(x => x.id === id);
+    curIngs = dish ? [...dish.ingredients] : [];
     let h = `
-        <input type="text" id="rn" class="ios-input" value="${d?d.name:''}" placeholder="Name" onfocus="onIFocus()" onblur="onIBlur()">
-        <div id="ri" class="card-group"></div>
-        <div class="search-bar"><input type="text" id="rin" placeholder="Ingredient..." onfocus="onIFocus()" onblur="onIBlur()"><button class="btn-add" onclick="addRI()">+</button></div>
-        <button class="ios-btn-primary" onclick="saveR()">Save</button>
-        ${id ? '<button style="color:red;width:100%;border:none;background:none;margin-top:15px;" onclick="delR()">Delete</button>' : ''}
+        <input type="text" id="edit-name" class="ios-input" value="${dish?dish.name:''}" placeholder="Dish Name">
+        <div id="edit-ings-list" class="card-group"></div>
+        <div class="search-bar">
+            <input type="text" id="edit-ing-in" placeholder="Ingredient...">
+            <button class="btn-add" onclick="addIngToEditor()">+</button>
+        </div>
+        <button class="btn-primary" onclick="saveRecipe()">Save Recipe</button>
+        ${id ? `<button style="color:red;width:100%;background:none;border:none;margin-top:20px;" onclick="deleteRecipe()">Delete Recipe</button>` : ''}
     `;
-    openM(id?'Edit':'New', h); renderRI();
+    openModal(id ? 'Edit Recipe' : 'New Recipe', h);
+    renderEditorIngs();
 }
-function renderRI() { document.getElementById('ri').innerHTML = eIngs.map((n, i) => `<div class="card-row"><span>${n}</span><span style="color:red" onclick="eIngs.splice(${i},1);renderRI()">Del</span></div>`).join(''); }
-function addRI() { const v = document.getElementById('rin').value; if(v) { eIngs.push(v); document.getElementById('rin').value=''; renderRI(); } }
-function saveR() {
-    const n = document.getElementById('rn').value; if(!n) return;
-    if(eId) { const d = db.dishes.find(x=>x.id===eId); d.name=n; d.ingredients=eIngs; }
-    else db.dishes.push({id:Date.now(), name:n, ingredients:eIngs});
+
+function renderEditorIngs() {
+    document.getElementById('edit-ings-list').innerHTML = curIngs.map((ing, i) => `
+        <div class="card-row"><span>${ing}</span><span style="color:red" onclick="curIngs.splice(${i},1);renderEditorIngs()">Del</span></div>
+    `).join('');
+}
+function addIngToEditor() {
+    const v = document.getElementById('edit-ing-in').value.trim();
+    if (v) { curIngs.push(v); document.getElementById('edit-ing-in').value = ''; renderEditorIngs(); }
+}
+function saveRecipe() {
+    const name = document.getElementById('edit-name').value.trim();
+    if (!name) return;
+    if (curId) {
+        const d = db.dishes.find(x => x.id === curId);
+        d.name = name; d.ingredients = curIngs;
+    } else {
+        db.dishes.push({ id: Date.now(), name: name, ingredients: curIngs });
+    }
     save(); closeModal();
 }
-function delR() { db.dishes = db.dishes.filter(x=>x.id!==eId); save(); closeModal(); }
+function deleteRecipe() {
+    db.dishes = db.dishes.filter(x => x.id !== curId);
+    save(); closeModal();
+}
 
 function renderPantry() {
     let h = '<div class="card-group">';
-    db.pantry.forEach(i => h += `<div class="card-row"><span>${i.name}</span><span style="color:red" onclick="db.pantry=db.pantry.filter(x=>x.name!=='${i.name}');save()">Del</span></div>`);
-    document.getElementById('pantry-list').innerHTML = h + '</div>';
+    db.pantry.forEach((item, i) => {
+        h += `<div class="card-row">
+            <span>${item.name}</span>
+            <span style="color:red" onclick="db.pantry.splice(${i},1);save()">Del</span>
+        </div>`;
+    });
+    document.getElementById('list-pantry').innerHTML = h + '</div>';
 }
-function addItem(t) { const v = document.getElementById(t+'-input').value; if(v) { db[t].push({name:v}); document.getElementById(t+'-input').value=''; save(); } }
+function addToPantry() {
+    const v = document.getElementById('pantry-in').value.trim();
+    if (v) { db.pantry.push({ name: v }); document.getElementById('pantry-in').value = ''; save(); }
+}
+
 function renderShop() {
-    let list = []; db.plan.forEach(p => { if(p.dish) { const d = db.dishes.find(x=>x.name===p.dish); if(d) d.ingredients.forEach(i => {if(!list.includes(i)) list.push(i);})}});
+    let needed = [];
+    db.plan.forEach(p => {
+        if (p.dish) {
+            const d = db.dishes.find(x => x.name === p.dish);
+            if (d) d.ingredients.forEach(ing => { if (!needed.includes(ing)) needed.push(ing); });
+        }
+    });
+    if (needed.length === 0) {
+        document.getElementById('list-shop').innerHTML = '<div class="empty">Nothing to buy.</div>';
+        return;
+    }
     let h = '<div class="card-group">';
-    list.forEach(i => h += `<div class="card-row" onclick="tS('${i}')"><span>${i}</span><span>${db.checked.includes(i)?'✅':'⚪️'}</span></div>`);
-    document.getElementById('shop-list').innerHTML = h + '</div>';
+    needed.forEach(ing => {
+        const isDone = db.checked.includes(ing);
+        h += `<div class="card-row" onclick="toggleCheck('${ing}')">
+            <span style="${isDone ? 'text-decoration:line-through;color:var(--sec)' : ''}">${ing}</span>
+            <span>${isDone ? '✅' : '⚪️'}</span>
+        </div>`;
+    });
+    document.getElementById('list-shop').innerHTML = h + '</div>';
 }
-function tS(i) { if(db.checked.includes(i)) db.checked=db.checked.filter(x=>x!==i); else db.checked.push(i); save(); }
+function toggleCheck(ing) {
+    if (db.checked.includes(ing)) db.checked = db.checked.filter(x => x !== ing);
+    else db.checked.push(ing);
+    save();
+}
+
+function renderCook() {
+    const val = document.getElementById('cook-in').value.toLowerCase();
+    if (!val) {
+        document.getElementById('list-cook').innerHTML = '<div class="empty">Type an ingredient.</div>';
+        return;
+    }
+    const matches = db.dishes.filter(d => d.ingredients.some(i => i.toLowerCase().includes(val)));
+    let h = '<div class="card-group">';
+    matches.forEach(d => {
+        h += `<div class="card-row"><b>${d.name}</b><span style="font-size:12px">${d.ingredients.length} items</span></div>`;
+    });
+    document.getElementById('list-cook').innerHTML = h + '</div>';
+}
 </script>
 </body>
 </html>
