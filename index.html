@@ -9,17 +9,36 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --accent: #E56B45; 
-            --accent-muted: rgba(229, 107, 69, 0.15);
-            --text-main: #ffffff;
-            --text-sec: rgba(235, 235, 245, 0.6);
-            --bg-color: #000000;
-            
-            --glass-nav: rgba(30, 30, 30, 0.75); /* Jaśniejsze tło dla prawdziwego rozmycia */
-            --glass-card: rgba(255, 255, 255, 0.08);
-            --glass-input: rgba(255, 255, 255, 0.12);
-            --glass-border: rgba(255, 255, 255, 0.15);
+            /* LIGHT MODE */
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --input-bg: #e5e5ea;
+            --text-main: #000000;
+            --text-sec: #8e8e93;
+            --accent: #c75933; /* Deep Terracotta */
+            --accent-muted: rgba(199, 89, 51, 0.15);
+            --btn-text: #ffffff;
+            --border: #e5e5ea;
+            --glass-bg: rgba(242, 242, 247, 0.85);
+            --modal-overlay: rgba(0, 0, 0, 0.4);
             --tab-inactive: #8e8e93;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* DARK MODE - Czysty Apple Standard (Zero czerwonego tła!) */
+                --bg-color: #000000;
+                --card-bg: #1c1c1e;
+                --input-bg: #2c2c2e;
+                --text-main: #ffffff;
+                --text-sec: #8e8e93;
+                --accent: #ebd9cc; /* Sand Beige */
+                --accent-muted: rgba(235, 217, 204, 0.15);
+                --btn-text: #000000;
+                --border: #38383a;
+                --glass-bg: rgba(30, 30, 30, 0.75);
+                --modal-overlay: rgba(0, 0, 0, 0.6);
+                --tab-inactive: #636366;
+            }
         }
         
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -29,55 +48,48 @@
             color: var(--text-main); 
             padding-bottom: 120px; padding-top: env(safe-area-inset-top); 
             min-height: 100vh;
-            background-color: var(--bg-color);
-            /* Delikatny szum z gradientem pod spodem, żeby szkło reagowało na światło */
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(229, 107, 69, 0.15), transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(100, 100, 120, 0.2), transparent 50%);
-            background-attachment: fixed;
+            background-color: var(--bg-color); /* Zwykłe, czyste tło */
         }
         
-        /* HEADER - LIQUID GLASS */
+        /* HEADER */
         header { 
             position: sticky; top: 0; 
-            background: var(--glass-nav); 
-            backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: var(--glass-bg); 
+            backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%);
             padding: 12px 20px 16px; display: flex; justify-content: space-between; align-items: center; 
-            z-index: 100; border-bottom: 0.5px solid var(--glass-border);
+            z-index: 100; border-bottom: 0.5px solid var(--border);
         }
         h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
         .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer; padding: 0;}
 
         /* TABS */
         .tab-content { display: none; padding: 16px 20px; }
-        .tab-content.active { display: block; animation: scaleIn 0.2s ease-out; }
-        @keyframes scaleIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* UI KARTY */
         .card-group { 
-            background: var(--glass-card); 
-            border-radius: 16px; 
+            background: var(--card-bg); 
+            border-radius: 12px; 
             margin-bottom: 24px; 
-            border: 0.5px solid var(--glass-border);
             overflow: hidden; 
         }
         .card-header { padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px;}
-        .card-row { padding: 16px; border-bottom: 0.5px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;}
-        .card-row:active { background: rgba(255,255,255,0.1); }
+        .card-row { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;}
+        .card-row:active { background: var(--border); }
         .card-row:last-child { border-bottom: none; }
         .text-main { font-size: 17px; font-weight: 500;}
         .text-sub { font-size: 14px; color: var(--text-sec); margin-top: 4px;}
         
         /* INPUTY I WYSZUKIWARKI */
-        .ios-input { width: 100%; padding: 16px; border-radius: 14px; border: 0.5px solid var(--glass-border); background: var(--glass-input); color: var(--text-main); font-size: 17px; outline: none; margin-bottom:16px;}
+        .ios-input { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--input-bg); color: var(--text-main); font-size: 17px; outline: none; margin-bottom:16px;}
         .ios-input::placeholder { color: var(--text-sec); }
         
         .search-bar { 
             display: flex; gap: 10px; margin-bottom: 16px; 
-            background: var(--glass-input); 
+            background: var(--input-bg); 
             padding: 4px 8px 4px 16px; 
             border-radius: 14px; align-items: center;
-            border: 0.5px solid var(--glass-border);
         }
         .search-bar input { flex: 1; border: none; background: transparent; font-size: 17px; color: var(--text-main); outline: none; padding: 12px 0; }
         .search-bar input::placeholder { color: var(--text-sec); }
@@ -86,19 +98,19 @@
         /* TAGI */
         .tag-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 12px; margin-bottom: 8px; scrollbar-width: none; }
         .tag-scroll::-webkit-scrollbar { display: none; }
-        .tag { background: var(--glass-card); border: 0.5px solid var(--glass-border); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: 0.2s;}
-        .tag.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600;}
+        .tag { background: var(--card-bg); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: 0.2s;}
+        .tag.active { background: var(--accent); color: var(--btn-text); font-weight: 600;}
 
         /* PRZYCISKI */
-        .ios-btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; cursor: pointer; margin-top: 10px;}
-        .ios-btn-danger { width: 100%; padding: 16px; background: rgba(255, 69, 58, 0.1); color: #ff453a; border: none; border-radius: 14px; font-weight: 600; font-size: 17px; cursor: pointer; margin-top: 12px; }
+        .ios-btn-primary { width: 100%; padding: 16px; background: var(--accent); color: var(--btn-text); border: none; border-radius: 14px; font-weight: 700; font-size: 17px; cursor: pointer; margin-top: 10px;}
+        .ios-btn-danger { width: 100%; padding: 16px; background: transparent; color: #ff453a; border: none; border-radius: 14px; font-weight: 600; font-size: 17px; cursor: pointer; margin-top: 5px; }
 
-        /* NAV BAR - PRAWIDZIWE SZKŁO APPLE */
+        /* NAV BAR */
         nav { 
             position: fixed; bottom: 0; width: 100%; 
-            background: var(--glass-nav); 
+            background: var(--glass-bg); 
             backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%); 
-            border-top: 0.5px solid var(--glass-border); 
+            border-top: 0.5px solid var(--border); 
             display: flex; justify-content: space-around; 
             padding-bottom: env(safe-area-inset-bottom); padding-top: 10px; z-index: 100;
         }
@@ -107,26 +119,26 @@
         .nav-icon { width: 26px; height: 26px; display: block; margin: 0 auto 4px auto; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;}
         
         /* MODAL */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 200; align-items: flex-end; }
         .modal-overlay.active { display: flex; animation: fadeInOverlay 0.2s ease-out;}
         @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
         
         .modal { 
-            background: rgba(30, 30, 32, 0.9); 
-            backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);
+            background: var(--card-bg); 
             width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; 
-            border-top: 0.5px solid var(--glass-border);
             display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); 
             animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        .modal-drag { width: 40px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 12px auto 0; }
-        .modal-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:10;}
+        .modal-drag { width: 40px; height: 5px; background: var(--text-sec); border-radius: 3px; margin: 12px auto 0; opacity: 0.5;}
+        .modal-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:10; background: var(--card-bg); border-radius: 24px 24px 0 0;}
         .modal-title { font-weight: 800; font-size: 22px; }
         .modal-body { padding: 0 20px 20px; overflow-y: auto;}
         
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sec); font-size: 16px; font-weight: 500; }
+        /* PUSTE STANY (Zabezpieczenie przed pustymi ramkami) */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sec); font-size: 16px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 10px;}
+        .empty-icon { font-size: 40px; opacity: 0.5; margin-bottom: 10px;}
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
@@ -140,7 +152,7 @@
     </header>
 
     <main id="tab-planner" class="tab-content active">
-        <div class="card-group" id="planner-list"></div>
+        <div id="planner-list"></div>
     </main>
 
     <main id="tab-shop" class="tab-content">
@@ -158,7 +170,7 @@
     </main>
 
     <main id="tab-recipes" class="tab-content">
-        <div class="card-group" id="recipes-list"></div>
+        <div id="recipes-list"></div>
     </main>
 
     <main id="tab-cook" class="tab-content">
@@ -190,7 +202,7 @@
             Recipes
         </button>
         <button class="nav-item" onclick="switchTab('cook', 'Cook Now')">
-            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path><circle cx="12" cy="12" r="8"></circle><path d="M14 10l-4 4"></path></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
             Cook Now
         </button>
     </nav>
@@ -200,7 +212,7 @@
             <div class="modal-drag"></div>
             <div class="modal-header">
                 <span class="modal-title" id="modal-title">Select</span>
-                <span style="color:var(--accent); font-weight:600; font-size:17px; cursor:pointer;" onclick="closeModal()">Done</span>
+                <span style="color:var(--accent); font-weight:600; font-size:17px; cursor:pointer;" onclick="closeModal()">Close</span>
             </div>
             <div class="modal-body" id="modal-body"></div>
         </div>
@@ -226,7 +238,6 @@ let db = { plan: [], pantry: [], savedIng: [], checked: [], dishes: [] };
 dbRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
-        // TWARDY FIX PLANNERA: Jeśli kalendarz w chmurze jest uszkodzony, napraw i nadpisz chmurę!
         if (!data.plan || !data.plan[0] || !data.plan[0].day) {
             db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d => ({day: d, dish: null}));
             saveDB(); 
@@ -337,23 +348,29 @@ function closeModal() { document.getElementById('modal').classList.remove('activ
 // PLANNER
 function renderPlanner() {
     if(!db.plan || db.plan.length === 0) return;
-    let html = '';
+    let html = `<div class="card-group">`;
     db.plan.forEach((p, idx) => {
         let text = p.dish ? `<span style="color:var(--accent)">${p.dish}</span>` : `<span style="color:var(--text-sec)">Plan meal...</span>`;
         html += `<div class="card-row" onclick="pickDishForDay(${idx})">
-            <span style="width:110px; font-weight:700; color:var(--text-main);">${p.day}</span>
+            <span style="width:110px; font-weight:600; color:var(--text-main);">${p.day}</span>
             <span class="text-main" style="text-align:right; flex:1;">${text}</span>
         </div>`;
     });
+    html += `</div>`;
     document.getElementById('planner-list').innerHTML = html;
 }
 
 function pickDishForDay(dayIdx) {
-    let html = `<div class="card-group"><div class="card-row" style="color:#ff453a; font-weight:600;" onclick="setDayDish(${dayIdx}, null)">Clear day</div>`;
-    db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
-        html += `<div class="card-row text-main" onclick="setDayDish(${dayIdx}, '${d.name.replace(/'/g, "\\'")}')">${d.name}</div>`;
-    });
-    html += `</div>`;
+    let html = '';
+    if (!db.dishes || db.dishes.length === 0) {
+        html = `<div class="empty-state"><span class="empty-icon">🍽️</span>No recipes added yet.<br>Go to Recipes tab to create one.</div>`;
+    } else {
+        html = `<div class="card-group"><div class="card-row" style="color:#ff453a; font-weight:600;" onclick="setDayDish(${dayIdx}, null)">Clear day</div>`;
+        db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
+            html += `<div class="card-row text-main" onclick="setDayDish(${dayIdx}, '${d.name.replace(/'/g, "\\'")}')">${d.name}</div>`;
+        });
+        html += `</div>`;
+    }
     openModal(`Select for ${db.plan[dayIdx].day}`, html);
 }
 function setDayDish(dayIdx, dishName) { haptic(); db.plan[dayIdx].dish = dishName; saveDB(); closeModal(); }
@@ -381,7 +398,7 @@ function renderShop() {
     });
 
     let items = Object.values(agg);
-    if(items.length === 0) { document.getElementById('shop-list').innerHTML = `<div class="empty-state">Everything is in stock!</div>`; return; }
+    if(items.length === 0) { document.getElementById('shop-list').innerHTML = `<div class="empty-state"><span class="empty-icon">🛒</span>Everything is in stock!<br>Plan some meals to generate list.</div>`; return; }
 
     let html = '';
     allCategories.forEach(c => {
@@ -390,10 +407,10 @@ function renderShop() {
             html += `<div class="card-header">${c}</div><div class="card-group">`;
             catItems.forEach(i => {
                 let isChecked = db.checked.includes(i.name.toLowerCase()) || (db.pantry.find(p=>p.name.toLowerCase()===i.name.toLowerCase())?.isAvail === true);
-                let checkColor = isChecked ? 'var(--accent)' : 'var(--glass-border)';
+                let checkColor = isChecked ? 'var(--accent)' : 'var(--text-sec)';
                 let checkFill = isChecked ? 'var(--accent)' : 'none';
                 let style = isChecked ? 'color:var(--text-sec); text-decoration:line-through;' : '';
-                let count = i.count > 1 ? ` <span style="color:var(--accent); font-weight:800;">(${i.count}x)</span>` : '';
+                let count = i.count > 1 ? ` <span style="color:var(--accent); font-weight:700;">(${i.count}x)</span>` : '';
                 
                 html += `<div class="card-row" onclick="toggleShopItem('${i.name.replace(/'/g, "\\'")}')">
                     <div style="display:flex; align-items:center; gap:16px; flex:1;">
@@ -417,14 +434,17 @@ function toggleShopItem(name) {
 
 // PANTRY
 function renderPantry() {
-    if(!db.pantry) return;
+    if(!db.pantry || db.pantry.length === 0) {
+        document.getElementById('pantry-list').innerHTML = `<div class="empty-state"><span class="empty-icon">📦</span>Your pantry is empty.<br>Add some ingredients above.</div>`;
+        return;
+    }
     let html = '';
     allCategories.forEach(c => {
         let catItems = db.pantry.filter(p => getCat(p.name) === c);
         if(catItems.length > 0) {
             html += `<div class="card-header">${c}</div><div class="card-group">`;
             catItems.forEach(i => {
-                let checkColor = i.isAvail ? 'var(--accent)' : 'var(--glass-border)';
+                let checkColor = i.isAvail ? 'var(--accent)' : 'var(--text-sec)';
                 let checkFill = i.isAvail ? 'var(--accent)' : 'none';
                 let style = i.isAvail ? '' : 'color:var(--text-sec);';
                 
@@ -459,11 +479,16 @@ function deletePantry(name) { haptic(); db.pantry = db.pantry.filter(p=>p.name!=
 
 // RECIPES
 function renderRecipes() {
-    if(!db.dishes) return;
+    // NAPRAWIONY PUSTY STAN KARTY!
+    if(!db.dishes || db.dishes.length === 0) {
+        document.getElementById('recipes-list').innerHTML = `<div class="empty-state"><span class="empty-icon">📖</span>No recipes added yet.<br>Click + Add in top right corner.</div>`;
+        return;
+    }
+    
     let html = `<div class="card-group">`;
     db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
         html += `<div class="card-row" onclick="openRecipeModal(${d.id})">
-            <div><div class="text-main" style="font-weight:700; color:var(--text-main);">${d.name}</div><div class="text-sub">${d.ingredients.join(', ')}</div></div>
+            <div><div class="text-main" style="font-weight:600; color:var(--text-main);">${d.name}</div><div class="text-sub">${d.ingredients.join(', ')}</div></div>
         </div>`;
     });
     html += `</div>`;
@@ -471,13 +496,13 @@ function renderRecipes() {
 }
 
 function openRecipeModal(id) {
-    let dish = db.dishes.find(d => d.id === id);
+    let dish = db.dishes ? db.dishes.find(d => d.id === id) : null;
     editRecipeId = id; editRecipeIngs = dish ? [...dish.ingredients] : [];
     let name = dish ? dish.name : '';
     
     let html = `
         <input type="text" id="recipe-name" class="ios-input" value="${name}" placeholder="Recipe Name">
-        <div class="card-group" id="recipe-ings-list"></div>
+        <div id="recipe-ings-list"></div>
         <div class="search-bar">
             <svg style="width:20px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="recipe-ing-input" placeholder="Add ingredient..." oninput="updateRecipeSugg()">
@@ -492,7 +517,11 @@ function openRecipeModal(id) {
 }
 
 function renderRecipeIngs() {
-    let html = editRecipeIngs.map((ing, idx) => `<div class="card-row"><span class="text-main">${ing}</span> <svg onclick="delRecipeIng(${idx})" style="width:20px; color:#ff453a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>`).join('');
+    if (editRecipeIngs.length === 0) {
+        document.getElementById('recipe-ings-list').innerHTML = '';
+        return;
+    }
+    let html = `<div class="card-group">` + editRecipeIngs.map((ing, idx) => `<div class="card-row"><span class="text-main">${ing}</span> <svg onclick="delRecipeIng(${idx})" style="width:20px; color:#ff453a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>`).join('') + `</div>`;
     document.getElementById('recipe-ings-list').innerHTML = html;
 }
 function delRecipeIng(idx) { editRecipeIngs.splice(idx, 1); renderRecipeIngs(); }
@@ -512,7 +541,10 @@ function saveRecipe() {
     let name = document.getElementById('recipe-name').value.trim();
     if(!name) return alert("Enter recipe name!");
     if(editRecipeId) { let d = db.dishes.find(x=>x.id===editRecipeId); d.name = name; d.ingredients = editRecipeIngs; }
-    else { db.dishes.push({id: Date.now(), name: name, ingredients: editRecipeIngs}); }
+    else { 
+        if(!db.dishes) db.dishes = [];
+        db.dishes.push({id: Date.now(), name: name, ingredients: editRecipeIngs}); 
+    }
     saveDB(); closeModal(); haptic();
 }
 function deleteRecipe(id) { db.dishes = db.dishes.filter(d=>d.id!==id); saveDB(); closeModal(); haptic(); }
@@ -535,12 +567,14 @@ function renderCookNow() {
     let list = document.getElementById('cook-results');
     
     if(cookTags.length === 0) { 
-        list.innerHTML = `<div class="empty-state">Type an ingredient to find matching recipes</div>`; 
+        list.innerHTML = `<div class="empty-state"><span class="empty-icon">🍳</span>Type an ingredient<br>to find matching recipes</div>`; 
         return; 
     }
 
-    let availPantry = db.pantry.filter(p=>p.isAvail).map(p=>p.name.toLowerCase());
+    let availPantry = db.pantry ? db.pantry.filter(p=>p.isAvail).map(p=>p.name.toLowerCase()) : [];
     let allAvail = [...new Set([...availPantry, ...cookTags.map(t=>t.toLowerCase())])];
+
+    if(!db.dishes) { list.innerHTML = `<div class="empty-state">No recipes added yet</div>`; return; }
 
     let results = db.dishes.map(d => {
         let matchCount = d.ingredients.filter(i => allAvail.includes(i.toLowerCase())).length;
@@ -550,14 +584,14 @@ function renderCookNow() {
         return cookTags.every(t => dLower.includes(t.toLowerCase()));
     }).sort((a,b) => b.count - a.count);
 
-    if(results.length === 0) { list.innerHTML = `<div class="empty-state">No recipes match these ingredients</div>`; return; }
+    if(results.length === 0) { list.innerHTML = `<div class="empty-state"><span class="empty-icon">🤔</span>No recipes match<br>these ingredients</div>`; return; }
 
     let html = `<div class="card-group">`;
     results.forEach(r => {
         html += `
         <div class="card-row">
             <div><div class="text-main" style="font-weight:700;">${r.dish.name}</div><div class="text-sub">${r.dish.ingredients.join(', ')}</div></div>
-            <div style="font-size:14px; font-weight:800; color:var(--accent); background:var(--accent-muted); padding:4px 8px; border-radius:8px;">${r.count}/${r.dish.ingredients.length}</div>
+            <div style="font-size:14px; font-weight:800; color:var(--accent); background:var(--accent-muted); padding:6px 10px; border-radius:8px;">${r.count}/${r.dish.ingredients.length}</div>
         </div>`;
     });
     html += `</div>`;
