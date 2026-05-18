@@ -9,105 +9,130 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            /* LIGHT MODE */
-            --bg-color: #f2f2f7;
-            --card-bg: #ffffff;
-            --input-bg: #e5e5ea;
-            --text-main: #000000;
-            --text-sec: #8e8e93;
-            --accent: #c75933; /* Deep Terracotta */
-            --accent-muted: rgba(199, 89, 51, 0.15);
-            --btn-text: #ffffff;
-            --border: rgba(60, 60, 67, 0.15);
-            --glass-bg: rgba(242, 242, 247, 0.75);
-            --modal-overlay: rgba(0, 0, 0, 0.4);
-            --tab-inactive: #8e8e93;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                /* DARK MODE - Liquid Glass Apple Style */
-                --bg-color: #000000;
-                --card-bg: #1c1c1e;
-                --input-bg: #2c2c2e;
-                --text-main: #ffffff;
-                --text-sec: #8e8e93;
-                --accent: #ebd9cc; /* Sand Beige */
-                --accent-muted: rgba(235, 217, 204, 0.15);
-                --btn-text: #000000;
-                --border: rgba(84, 84, 88, 0.35);
-                --glass-bg: rgba(30, 30, 30, 0.65);
-                --modal-overlay: rgba(0, 0, 0, 0.6);
-                --tab-inactive: #636366;
-            }
+            /* Nowoczesna paleta - wymuszony Dark Glassmorphism, bo w nim apka wygląda najlepiej */
+            --accent: #E56B45; /* Nowoczesna, wibrująca terakota */
+            --accent-muted: rgba(229, 107, 69, 0.15);
+            --text-main: #ffffff;
+            --text-sec: rgba(235, 235, 245, 0.6);
+            --bg-color: #000000;
+            
+            /* Szklane zmienne */
+            --glass-bg: rgba(20, 20, 22, 0.65);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-input: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --tab-inactive: rgba(235, 235, 245, 0.4);
         }
         
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); padding-bottom: 100px; padding-top: env(safe-area-inset-top); }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            margin: 0; padding: 0; 
+            color: var(--text-main); 
+            padding-bottom: 110px; padding-top: env(safe-area-inset-top); 
+            min-height: 100vh;
+            /* Subtelny Mesh Gradient pod spodem, żeby szkło miało co rozmywać! */
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at top left, rgba(229, 107, 69, 0.15), transparent 40%),
+                radial-gradient(circle at bottom right, rgba(40, 40, 50, 0.3), transparent 50%);
+            background-attachment: fixed;
+        }
         
         /* HEADER - LIQUID GLASS */
         header { 
             position: sticky; top: 0; 
             background: var(--glass-bg); 
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; 
-            z-index: 100; border-bottom: 0.5px solid var(--border);
+            backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
+            padding: 12px 20px 16px; display: flex; justify-content: space-between; align-items: center; 
+            z-index: 100; border-bottom: 0.5px solid var(--glass-border);
         }
-        h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;}
-        .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer; }
+        h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+        .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer; padding: 0;}
 
         /* TABS */
-        .tab-content { display: none; padding: 16px; }
-        .tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-content { display: none; padding: 16px 20px; }
+        .tab-content.active { display: block; animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes scaleIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        /* UI ELEMENTS */
-        .card-group { background: var(--card-bg); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
-        .card-header { padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--text-sec); text-transform: uppercase; }
-        .card-row { padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .card-row:active { opacity: 0.7; }
+        /* UI KARTY - SZKLANE */
+        .card-group { 
+            background: var(--glass-card); 
+            border-radius: 16px; 
+            margin-bottom: 24px; 
+            border: 0.5px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            overflow: hidden; 
+        }
+        .card-header { padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px;}
+        .card-row { padding: 16px; border-bottom: 0.5px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;}
+        .card-row:active { background: rgba(255,255,255,0.08); }
         .card-row:last-child { border-bottom: none; }
-        .text-main { font-size: 17px; font-weight: 500;}
-        .text-sub { font-size: 14px; color: var(--text-sec); margin-top: 3px; }
+        .text-main { font-size: 17px; font-weight: 500; letter-spacing: 0.2px;}
+        .text-sub { font-size: 14px; color: var(--text-sec); margin-top: 4px; line-height: 1.4;}
         
-        /* INPUTS */
-        .ios-input { width: 100%; padding: 14px 16px; border-radius: 12px; border: none; background: var(--input-bg); color: var(--text-main); font-size: 17px; outline: none; }
-        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px 8px 4px 16px; border-radius: 12px; align-items: center;}
-        .search-bar input { flex: 1; border: none; background: transparent; font-size: 17px; color: var(--text-main); outline: none; padding: 10px 0; }
-        .btn-add { color: var(--accent); background: none; border: none; font-size: 24px; font-weight: 400; padding: 0 8px;}
+        /* INPUTY I WYSZUKIWARKI */
+        .ios-input { width: 100%; padding: 16px; border-radius: 14px; border: 0.5px solid var(--glass-border); background: var(--glass-input); color: var(--text-main); font-size: 17px; outline: none; margin-bottom:16px;}
+        .ios-input::placeholder { color: var(--text-sec); }
         
-        /* TAGS */
-        .tag-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; margin-bottom: 8px; scrollbar-width: none; }
+        .search-bar { 
+            display: flex; gap: 10px; margin-bottom: 16px; 
+            background: var(--glass-input); 
+            padding: 4px 8px 4px 16px; 
+            border-radius: 14px; align-items: center;
+            border: 0.5px solid var(--glass-border);
+        }
+        .search-bar input { flex: 1; border: none; background: transparent; font-size: 17px; color: var(--text-main); outline: none; padding: 12px 0; }
+        .search-bar input::placeholder { color: var(--text-sec); }
+        .btn-add { color: var(--accent); background: none; border: none; font-size: 26px; font-weight: 300; padding: 0 10px;}
+        
+        /* TAGI */
+        .tag-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 12px; margin-bottom: 8px; scrollbar-width: none; }
         .tag-scroll::-webkit-scrollbar { display: none; }
-        .tag { background: var(--accent-muted); color: var(--accent); padding: 8px 14px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; }
-        .tag.active { background: var(--accent); color: var(--btn-text); }
+        .tag { background: var(--glass-card); border: 0.5px solid var(--glass-border); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: 0.2s;}
+        .tag.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600;}
 
-        /* BUTTONS */
-        .ios-btn-primary { width: 100%; padding: 16px; background: var(--accent); color: var(--btn-text); border: none; border-radius: 14px; font-weight: 700; font-size: 17px; cursor: pointer; margin-top: 10px; }
-        .ios-btn-danger { width: 100%; padding: 16px; background: transparent; color: #ff453a; border: none; font-weight: 600; font-size: 17px; cursor: pointer; }
+        /* PRZYCISKI */
+        .ios-btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; cursor: pointer; margin-top: 10px; transition: opacity 0.2s;}
+        .ios-btn-primary:active { opacity: 0.8; }
+        .ios-btn-danger { width: 100%; padding: 16px; background: rgba(255, 69, 58, 0.1); color: #ff453a; border: none; border-radius: 14px; font-weight: 600; font-size: 17px; cursor: pointer; margin-top: 12px; }
 
-        /* NAV BAR - LIQUID GLASS WITH SVG ICONS */
+        /* NAV BAR - LIQUID GLASS APPLE PRO */
         nav { 
             position: fixed; bottom: 0; width: 100%; 
             background: var(--glass-bg); 
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-            border-top: 0.5px solid var(--border); 
+            backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%); 
+            border-top: 0.5px solid var(--glass-border); 
             display: flex; justify-content: space-around; 
-            padding-bottom: env(safe-area-inset-bottom); padding-top: 8px; z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom); padding-top: 10px; z-index: 100;
         }
-        .nav-item { flex: 1; text-align: center; color: var(--tab-inactive); font-size: 10px; font-weight: 600; border: none; background: none; cursor: pointer; }
+        .nav-item { flex: 1; text-align: center; color: var(--tab-inactive); font-size: 10px; font-weight: 600; border: none; background: none; cursor: pointer; transition: color 0.2s; padding-bottom: 4px;}
         .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 4px auto; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;}
+        .nav-icon { width: 26px; height: 26px; display: block; margin: 0 auto 4px auto; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.2s;}
+        .nav-item.active .nav-icon { stroke-width: 2.5; filter: drop-shadow(0 0 8px rgba(229,107,69,0.4));}
         
-        /* BOTTOM SHEET MODAL (Proper iOS Style) */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 200; align-items: flex-end; }
-        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out;}
-        .modal { background: var(--bg-color); width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); }
+        /* BOTTOM SHEET MODAL - iOS 17 Style */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 200; align-items: flex-end; }
+        .modal-overlay.active { display: flex; animation: fadeInOverlay 0.3s ease-out;}
+        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+        
+        .modal { 
+            background: rgba(30, 30, 32, 0.85); 
+            backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);
+            width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; 
+            border-top: 0.5px solid var(--glass-border);
+            display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); 
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        .modal-header { padding: 18px 20px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index:10;}
-        .modal-title { font-weight: 700; font-size: 20px; }
-        .modal-body { padding: 20px; }
-        .modal-card-group { background: var(--card-bg); margin-bottom: 15px; margin-top: 5px; border-radius: 12px; overflow: hidden;}
+        .modal-drag { width: 36px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 12px auto 0; }
+        .modal-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:10;}
+        .modal-title { font-weight: 800; font-size: 22px; }
+        .modal-body { padding: 0 20px 20px; overflow-y: auto;}
+        
+        /* Pusty stan */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sec); font-size: 16px; font-weight: 500; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
@@ -116,7 +141,7 @@
 <body>
 
     <header>
-        <h1 id="page-title">Weekly Planner</h1>
+        <h1 id="page-title">Planner</h1>
         <button class="header-btn" id="header-action" style="display:none;"></button>
     </header>
 
@@ -130,7 +155,7 @@
 
     <main id="tab-pantry" class="tab-content">
         <div class="search-bar">
-            <svg class="nav-icon" style="width:18px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <svg style="width:20px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="pantry-input" placeholder="Add item (e.g. Leek)" oninput="updatePantrySuggestions()">
             <button class="btn-add" onclick="addPantryItem()">+</button>
         </div>
@@ -144,17 +169,17 @@
 
     <main id="tab-cook" class="tab-content">
         <div class="search-bar">
-            <svg class="nav-icon" style="width:18px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <svg style="width:20px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="cook-input" placeholder="What must be inside?" oninput="updateCookSuggestions()">
             <button class="btn-add" onclick="addCookTag()">+</button>
         </div>
         <div class="tag-scroll" id="cook-suggestions"></div>
         <div class="tag-scroll" id="cook-tags"></div>
-        <div class="card-group" id="cook-results"></div>
+        <div id="cook-results"></div>
     </main>
 
     <nav>
-        <button class="nav-item active" onclick="switchTab('planner', 'Weekly Planner')">
+        <button class="nav-item active" onclick="switchTab('planner', 'Planner')">
             <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             Planner
         </button>
@@ -162,11 +187,11 @@
             <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
             Shop
         </button>
-        <button class="nav-item" onclick="switchTab('pantry', 'My Pantry')">
+        <button class="nav-item" onclick="switchTab('pantry', 'Pantry')">
             <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Pantry
         </button>
-        <button class="nav-item" onclick="switchTab('recipes', 'My Recipes')">
+        <button class="nav-item" onclick="switchTab('recipes', 'Recipes')">
             <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             Recipes
         </button>
@@ -178,9 +203,10 @@
 
     <div class="modal-overlay" id="modal">
         <div class="modal">
+            <div class="modal-drag"></div>
             <div class="modal-header">
                 <span class="modal-title" id="modal-title">Select</span>
-                <span style="color:var(--accent); font-weight:600; font-size:17px; cursor:pointer;" onclick="closeModal()">Close</span>
+                <span style="color:var(--accent); font-weight:600; font-size:17px; cursor:pointer;" onclick="closeModal()">Done</span>
             </div>
             <div class="modal-body" id="modal-body"></div>
         </div>
@@ -207,12 +233,9 @@ let db = { plan: [], pantry: [], savedIng: [], checked: [], dishes: [] };
 dbRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
-        // FIX: Jeśli chmura odesłała pusty plan (bo się wyczyścił), generujemy go z powrotem.
         if (!data.plan || data.plan.length === 0) {
             db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d => ({day: d, dish: null}));
-        } else {
-            db.plan = data.plan;
-        }
+        } else { db.plan = data.plan; }
         db.pantry = data.pantry || [];
         db.savedIng = data.savedIng || [];
         db.checked = data.checked || [];
@@ -225,16 +248,15 @@ dbRef.on('value', (snapshot) => {
 
 function saveDB() { dbRef.set(db); }
 
-// POTĘŻNY SŁOWNIK + NOWE KATEGORIE
 const allCategories = ["Bakery", "Dairy", "Drinks", "Household", "Meat & Fish", "Other", "Pantry", "Veg & Fruit"];
 const autoCategoryDict = {
-    "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy", "mozzarella":"Dairy", "feta":"Dairy",
-    "water":"Drinks", "juice":"Drinks", "beer":"Drinks", "wine":"Drinks", "coffee":"Drinks", "tea":"Drinks", "coke":"Drinks",
-    "chicken":"Meat & Fish", "beef":"Meat & Fish", "pork":"Meat & Fish", "fish":"Meat & Fish", "salmon":"Meat & Fish", "bacon":"Meat & Fish", "mince":"Meat & Fish", "sausages":"Meat & Fish", "cod":"Meat & Fish", "tuna":"Meat & Fish", "turkey":"Meat & Fish",
-    "apple":"Veg & Fruit", "banana":"Veg & Fruit", "tomato":"Veg & Fruit", "tomatoes":"Veg & Fruit", "onion":"Veg & Fruit", "garlic":"Veg & Fruit", "potato":"Veg & Fruit", "potatoes":"Veg & Fruit", "leek":"Veg & Fruit", "zucchini":"Veg & Fruit", "carrot":"Veg & Fruit", "broccoli":"Veg & Fruit", "spinach":"Veg & Fruit", "pepper":"Veg & Fruit", "cucumber":"Veg & Fruit", "lemon":"Veg & Fruit", "sweet potato":"Veg & Fruit", "cabbage":"Veg & Fruit",
-    "bread":"Bakery", "rolls":"Bakery", "tortilla":"Bakery", "cake":"Bakery", "baguette":"Bakery", "croissant":"Bakery",
-    "flour":"Pantry", "sugar":"Pantry", "salt":"Pantry", "oil":"Pantry", "olive oil":"Pantry", "rice":"Pantry", "pasta":"Pantry", "spaghetti":"Pantry", "spices":"Pantry", "passata":"Pantry", "tinned tomatoes":"Pantry", "ketchup":"Pantry", "mayo":"Pantry", "mustard":"Pantry", "honey":"Pantry", "oats":"Pantry", "cereal":"Pantry", "peanut butter":"Pantry", "soy sauce":"Pantry",
-    "soap":"Household", "paper towel":"Household", "toilet paper":"Household", "detergent":"Household", "trash bags":"Household", "sponge":"Household"
+    "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy",
+    "water":"Drinks", "juice":"Drinks", "beer":"Drinks", "wine":"Drinks", "coffee":"Drinks", "tea":"Drinks",
+    "chicken":"Meat & Fish", "beef":"Meat & Fish", "pork":"Meat & Fish", "fish":"Meat & Fish", "salmon":"Meat & Fish", "bacon":"Meat & Fish", "mince":"Meat & Fish", "sausages":"Meat & Fish", "cod":"Meat & Fish",
+    "apple":"Veg & Fruit", "banana":"Veg & Fruit", "tomato":"Veg & Fruit", "tomatoes":"Veg & Fruit", "onion":"Veg & Fruit", "garlic":"Veg & Fruit", "potato":"Veg & Fruit", "potatoes":"Veg & Fruit", "leek":"Veg & Fruit", "zucchini":"Veg & Fruit", "carrot":"Veg & Fruit",
+    "bread":"Bakery", "rolls":"Bakery", "tortilla":"Bakery", "cake":"Bakery",
+    "flour":"Pantry", "sugar":"Pantry", "salt":"Pantry", "oil":"Pantry", "olive oil":"Pantry", "rice":"Pantry", "pasta":"Pantry", "spaghetti":"Pantry", "spices":"Pantry", "passata":"Pantry", "tinned tomatoes":"Pantry",
+    "soap":"Household", "paper towel":"Household", "toilet paper":"Household", "detergent":"Household"
 };
 
 function initDefaultDB() {
@@ -262,8 +284,7 @@ function haptic() { if(navigator.vibrate) navigator.vibrate(15); }
 function getCat(name) {
     let lower = name.toLowerCase().trim();
     let found = db.savedIng.find(i => i.name.toLowerCase() === lower);
-    if (found) return found.category;
-    return autoCategoryDict[lower] || "Other";
+    return found ? found.category : (autoCategoryDict[lower] || "Other");
 }
 
 function saveIngCat(name, forceCat = null) {
@@ -278,11 +299,8 @@ function fuzzy(input, excludeList) {
     let lower = input.toLowerCase().trim();
     if(!lower) return [];
     let set = new Set();
-    // Szukaj w zapisanych
     db.savedIng.forEach(i => { if(i.name.toLowerCase().includes(lower)) set.add(i.name); });
-    // Szukaj w potężnym słowniku (nawet jeśli jeszcze nie zapisane)
     Object.keys(autoCategoryDict).forEach(k => { if(k.includes(lower)) set.add(k.charAt(0).toUpperCase() + k.slice(1)); });
-    
     let exLower = excludeList.map(e => e.toLowerCase());
     return Array.from(set).filter(s => !exLower.includes(s.toLowerCase())).slice(0,8);
 }
@@ -324,9 +342,9 @@ function renderPlanner() {
     if(!db.plan || db.plan.length === 0) return;
     let html = '';
     db.plan.forEach((p, idx) => {
-        let text = p.dish ? `<span style="color:var(--accent)">${p.dish}</span>` : `<span style="color:var(--text-sec)">Add Dish...</span>`;
+        let text = p.dish ? `<span style="color:var(--accent)">${p.dish}</span>` : `<span style="color:var(--text-sec)">Plan meal...</span>`;
         html += `<div class="card-row" onclick="pickDishForDay(${idx})">
-            <span style="width:105px; font-weight:600; color:var(--text-main);">${p.day}</span>
+            <span style="width:110px; font-weight:700; color:var(--text-main);">${p.day}</span>
             <span class="text-main" style="text-align:right; flex:1;">${text}</span>
         </div>`;
     });
@@ -334,7 +352,7 @@ function renderPlanner() {
 }
 
 function pickDishForDay(dayIdx) {
-    let html = `<div class="modal-card-group"><div class="card-row" style="color:#ff453a; font-weight:600;" onclick="setDayDish(${dayIdx}, null)">Clear</div>`;
+    let html = `<div class="card-group"><div class="card-row" style="color:#ff453a; font-weight:600;" onclick="setDayDish(${dayIdx}, null)">Clear day</div>`;
     db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
         html += `<div class="card-row text-main" onclick="setDayDish(${dayIdx}, '${d.name.replace(/'/g, "\\'")}')">${d.name}</div>`;
     });
@@ -362,30 +380,28 @@ function renderShop() {
     db.pantry.filter(p => !p.isAvail).forEach(p => {
         let clean = p.name;
         if(agg[clean]) agg[clean].isPantry = true;
-        else agg[clean] = { name: clean, count: 0, dishes: ["Pantry Stock"], cat: getCat(clean), isPantry: true };
+        else agg[clean] = { name: clean, count: 0, dishes: ["Pantry"], cat: getCat(clean), isPantry: true };
     });
 
     let items = Object.values(agg);
-    let html = '';
-    
-    if(items.length === 0) { document.getElementById('shop-list').innerHTML = `<div class="card-group"><div class="card-row text-sec">Everything in stock!</div></div>`; return; }
+    if(items.length === 0) { document.getElementById('shop-list').innerHTML = `<div class="empty-state">Everything is in stock!</div>`; return; }
 
+    let html = '';
     allCategories.forEach(c => {
         let catItems = items.filter(i => i.cat === c);
         if(catItems.length > 0) {
             html += `<div class="card-header">${c}</div><div class="card-group">`;
             catItems.forEach(i => {
                 let isChecked = db.checked.includes(i.name.toLowerCase()) || (db.pantry.find(p=>p.name.toLowerCase()===i.name.toLowerCase())?.isAvail === true);
-                let checkColor = isChecked ? 'var(--accent)' : 'var(--border)';
+                let checkColor = isChecked ? 'var(--accent)' : 'var(--glass-border)';
                 let checkFill = isChecked ? 'var(--accent)' : 'none';
                 let style = isChecked ? 'color:var(--text-sec); text-decoration:line-through;' : '';
-                let badge = i.isPantry ? `<span style="font-size:10px; font-weight:800; padding:3px 6px; border-radius:5px; background:var(--accent-muted); color:var(--accent); margin-left:8px; vertical-align:middle;">PANTRY</span>` : '';
                 let count = i.count > 1 ? ` <span style="color:var(--accent); font-weight:800;">(${i.count}x)</span>` : '';
                 
                 html += `<div class="card-row" onclick="toggleShopItem('${i.name.replace(/'/g, "\\'")}')">
-                    <div style="display:flex; align-items:center; gap:14px; flex:1;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
-                        <div><div class="text-main" style="${style}">${i.name}${badge}${count}</div><div class="text-sub">For: ${i.dishes.join(', ')}</div></div>
+                    <div style="display:flex; align-items:center; gap:16px; flex:1;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
+                        <div><div class="text-main" style="${style}">${i.name}${count}</div><div class="text-sub">${i.dishes.join(', ')}</div></div>
                     </div>
                 </div>`;
             });
@@ -411,20 +427,16 @@ function renderPantry() {
         if(catItems.length > 0) {
             html += `<div class="card-header">${c}</div><div class="card-group">`;
             catItems.forEach(i => {
-                let checkColor = i.isAvail ? 'var(--accent)' : 'var(--border)';
+                let checkColor = i.isAvail ? 'var(--accent)' : 'var(--glass-border)';
                 let checkFill = i.isAvail ? 'var(--accent)' : 'none';
                 let style = i.isAvail ? '' : 'color:var(--text-sec);';
-                let missing = i.isAvail ? '' : '<span style="color:#ff453a; font-size:13px; font-weight:600;">Missing</span>';
                 
                 html += `<div class="card-row">
-                    <div style="display:flex; align-items:center; gap:14px; flex:1;" onclick="togglePantryAvail('${i.name.replace(/'/g, "\\'")}')">
-                        <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${i.isAvail?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
+                    <div style="display:flex; align-items:center; gap:16px; flex:1;" onclick="togglePantryAvail('${i.name.replace(/'/g, "\\'")}')">
+                        <svg width="24" height="24" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${i.isAvail?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
                         <span class="text-main" style="${style}">${i.name}</span>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        ${missing} 
-                        <svg onclick="deletePantry('${i.name.replace(/'/g, "\\'")}')" style="width:20px; color:#ff453a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </div>
+                    <svg onclick="deletePantry('${i.name.replace(/'/g, "\\'")}')" style="width:20px; color:var(--text-sec);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </div>`;
             });
             html += `</div>`;
@@ -451,12 +463,13 @@ function deletePantry(name) { haptic(); db.pantry = db.pantry.filter(p=>p.name!=
 // RECIPES
 function renderRecipes() {
     if(!db.dishes) return;
-    let html = '';
+    let html = `<div class="card-group">`;
     db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
         html += `<div class="card-row" onclick="openRecipeModal(${d.id})">
-            <div><div class="text-main" style="font-weight:600; color:var(--accent);">${d.name}</div><div class="text-sub">${d.ingredients.join(', ')}</div></div>
+            <div><div class="text-main" style="font-weight:700; color:var(--text-main);">${d.name}</div><div class="text-sub">${d.ingredients.join(', ')}</div></div>
         </div>`;
     });
+    html += `</div>`;
     document.getElementById('recipes-list').innerHTML = html;
 }
 
@@ -466,11 +479,11 @@ function openRecipeModal(id) {
     let name = dish ? dish.name : '';
     
     let html = `
-        <input type="text" id="recipe-name" class="ios-input" value="${name}" placeholder="Dish Name" style="margin-bottom:15px;">
-        <div class="modal-card-group" id="recipe-ings-list"></div>
-        <div class="search-bar" style="margin-bottom:15px;">
-            <svg class="nav-icon" style="width:18px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="recipe-ing-input" placeholder="New item..." oninput="updateRecipeSugg()">
+        <input type="text" id="recipe-name" class="ios-input" value="${name}" placeholder="Recipe Name">
+        <div class="card-group" id="recipe-ings-list"></div>
+        <div class="search-bar">
+            <svg style="width:20px; margin:0; color:var(--text-sec);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="recipe-ing-input" placeholder="Add ingredient..." oninput="updateRecipeSugg()">
             <button class="btn-add" onclick="addRecipeIng()">+</button>
         </div>
         <div class="tag-scroll" id="recipe-suggs"></div>
@@ -519,10 +532,16 @@ function addCookTag() {
     document.getElementById('cook-input').value = ''; updateCookSuggestions(); renderCookNow(); haptic();
 }
 function removeCookTag(tag) { cookTags = cookTags.filter(t => t !== tag); renderCookNow(); haptic(); }
+
 function renderCookNow() {
     document.getElementById('cook-tags').innerHTML = cookTags.map(t => `<span class="tag active" onclick="removeCookTag('${t}')">${t} ✕</span>`).join('');
     let list = document.getElementById('cook-results');
-    if(cookTags.length === 0) { list.innerHTML = `<div class="card-row text-sec" style="justify-content:center;">Type an ingredient...</div>`; return; }
+    
+    // ZMIENIONY PUSTY STAN - koniec z brzydkim ciemnym przyciskiem!
+    if(cookTags.length === 0) { 
+        list.innerHTML = `<div class="empty-state">Type an ingredient to find matching recipes</div>`; 
+        return; 
+    }
 
     let availPantry = db.pantry.filter(p=>p.isAvail).map(p=>p.name.toLowerCase());
     let allAvail = [...new Set([...availPantry, ...cookTags.map(t=>t.toLowerCase())])];
@@ -535,17 +554,21 @@ function renderCookNow() {
         return cookTags.every(t => dLower.includes(t.toLowerCase()));
     }).sort((a,b) => b.count - a.count);
 
-    if(results.length === 0) { list.innerHTML = `<div class="card-row text-sec" style="justify-content:center;">No recipes match.</div>`; return; }
+    if(results.length === 0) { list.innerHTML = `<div class="empty-state">No recipes match these ingredients</div>`; return; }
 
-    list.innerHTML = results.map(r => `
+    let html = `<div class="card-group">`;
+    results.forEach(r => {
+        html += `
         <div class="card-row">
-            <div><div class="text-main" style="font-weight:600; color:var(--accent);">${r.dish.name}</div><div class="text-sub">${r.dish.ingredients.join(', ')}</div></div>
-            <div style="font-size:13px; font-weight:700; color:var(--text-sec);">${r.count}/${r.dish.ingredients.length}</div>
-        </div>
-    `).join('');
+            <div><div class="text-main" style="font-weight:700;">${r.dish.name}</div><div class="text-sub">${r.dish.ingredients.join(', ')}</div></div>
+            <div style="font-size:14px; font-weight:800; color:var(--accent); background:var(--accent-muted); padding:4px 8px; border-radius:8px;">${r.count}/${r.dish.ingredients.length}</div>
+        </div>`;
+    });
+    html += `</div>`;
+    list.innerHTML = html;
 }
 
-switchTab('planner', 'Weekly Planner');
+switchTab('planner', 'Planner');
 </script>
 </body>
 </html>
