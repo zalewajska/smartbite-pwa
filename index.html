@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SmartBite</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            /* LIGHT MODE */
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --input-bg: #e5e5ea;
+            --text-main: #000000;
+            --text-sec: #8e8e93;
+            --accent: #c75933; /* Deep Terracotta */
+            --accent-muted: rgba(199, 89, 51, 0.15);
+            --btn-text: #ffffff;
+            --border: #e5e5ea;
+            --glass-bg: rgba(242, 242, 247, 0.85);
+            --modal-overlay: rgba(0, 0, 0, 0.4);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* DARK MODE (ZGODNY Z APPLE) */
+                --bg-color: #000000;
+                --card-bg: #1c1c1e; /* Ciemnoszary, odcina się od tła */
+                --input-bg: #2c2c2e; /* Jeszcze jaśniejszy na pola tekstowe */
+                --text-main: #ffffff;
+                --text-sec: #8e8e93;
+                --accent: #ebd9cc; /* Sand Beige */
+                --accent-muted: rgba(235, 217, 204, 0.15);
+                --btn-text: #000000; /* CZARNY TEKST na jasnym beżowym przycisku! */
+                --border: #38383a;
+                --glass-bg: rgba(0, 0, 0, 0.85);
+                --modal-overlay: rgba(0, 0, 0, 0.6);
+            }
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); padding-bottom: 90px; padding-top: env(safe-area-inset-top); }
+        
+        /* HEADER (EFEKT SZKŁA) */
+        header { 
+            position: sticky; top: 0; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+            z-index: 100; border-bottom: 1px solid var(--border);
+        }
+        h1 { margin: 0; font-size: 28px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px;}
+        .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer; }
+
+        /* TABS */
+        .tab-content { display: none; padding: 16px; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* UI ELEMENTS - KARTY */
+        .card-group { background: var(--card-bg); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+        .card-header { padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px;}
+        .card-row { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;}
+        .card-row:active { background: var(--border); }
+        .card-row:last-child { border-bottom: none; }
+        .row-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+        .text-main { font-size: 17px; font-weight: 500;}
+        .text-sub { font-size: 14px; color: var(--text-sec); margin-top: 3px; line-height: 1.3;}
+        
+        /* INPUTS & SEARCH BARS (SPÓJNY DESIGN) */
+        .ios-input { width: 100%; padding: 14px 16px; border-radius: 12px; border: none; background: var(--input-bg); color: var(--text-main); font-size: 17px; outline: none; transition: 0.2s; }
+        .ios-input::placeholder { color: var(--text-sec); }
+        
+        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; background: var(--input-bg); padding: 4px 8px 4px 16px; border-radius: 12px; align-items: center;}
+        .search-bar input { flex: 1; border: none; background: transparent; font-size: 17px; color: var(--text-main); outline: none; padding: 10px 0; }
+        .search-bar input::placeholder { color: var(--text-sec); }
+        .btn-add { color: var(--accent); background: none; border: none; font-size: 26px; padding: 0 8px; font-weight: 300;}
+        
+        /* TAGI */
+        .tag-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 12px; margin-bottom: 8px; scrollbar-width: none; }
+        .tag-scroll::-webkit-scrollbar { display: none; }
+        .tag { background: var(--accent-muted); color: var(--accent); padding: 8px 14px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+        .tag.active { background: var(--accent); color: var(--btn-text); }
+        .badge { font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 5px; background: var(--accent-muted); color: var(--accent); margin-left: 8px; vertical-align: middle;}
+
+        /* PRZYCISKI GŁÓWNE */
+        .ios-btn-primary { width: 100%; padding: 16px; background: var(--accent); color: var(--btn-text); border: none; border-radius: 14px; font-weight: 700; font-size: 17px; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+        .ios-btn-primary:active { opacity: 0.8; }
+        .ios-btn-danger { width: 100%; padding: 16px; background: transparent; color: #ff453a; border: none; font-weight: 600; font-size: 17px; cursor: pointer; margin-top: 5px; }
+
+        /* ICONS */
+        .icon { width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center; font-size: 22px;}
+        .crossed { text-decoration: line-through; color: var(--text-sec); }
+
+        /* NAV BAR (EFEKT SZKŁA) */
+        nav { position: fixed; bottom: 0; width: 100%; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding-bottom: env(safe-area-inset-bottom); padding-top: 8px; z-index: 100;}
+        .nav-item { flex: 1; text-align: center; color: var(--text-sec); font-size: 11px; font-weight: 500; border: none; background: none; cursor: pointer; transition: color 0.2s;}
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+
+        /* MODAL (Zupełnie nowy, poprawiony design) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 200; justify-content: center; align-items: flex-end; padding-bottom: 20px;}
+        .modal-overlay.active { display: flex; animation: fadeInOverlay 0.3s ease-out;}
+        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+        
+        .modal { background: var(--card-bg); width: 92%; max-height: 85vh; border-radius: 20px; overflow-y: auto; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; background:var(--card-bg); z-index:10;}
+        .modal-title { font-weight: 700; font-size: 20px; }
+        .modal-body { padding: 20px; }
+        
+        /* Lista wewnątrz modala musi się odcinać */
+        .modal-card-group { background: var(--input-bg); margin-bottom: 15px; margin-top: 5px;}
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1 id="page-title">Planner</h1>
+        <button class="header-btn" id="header-action" style="display:none;"></button>
+    </header>
+
+    <main id="tab-planner" class="tab-content active">
+        <div class="card-group" id="planner-list"></div>
+    </main>
+
+    <main id="tab-shop" class="tab-content">
+        <div id="shop-list"></div>
+    </main>
+
+    <main id="tab-pantry" class="tab-content">
+        <div class="search-bar">
+            <span class="icon" style="color:var(--text-sec); font-size:18px;">🔍</span>
+            <input type="text" id="pantry-input" placeholder="Add item (e.g. Flour)" oninput="updatePantrySuggestions()">
+            <button class="btn-add" onclick="addPantryItem()">+</button>
+        </div>
+        <div class="tag-scroll" id="pantry-suggestions"></div>
+        <div id="pantry-list"></div>
+    </main>
+
+    <main id="tab-recipes" class="tab-content">
+        <div class="card-group" id="recipes-list"></div>
+    </main>
+
+    <main id="tab-cook" class="tab-content">
+        <div class="search-bar">
+            <span class="icon" style="color:var(--text-sec); font-size:18px;">🔍</span>
+            <input type="text" id="cook-input" placeholder="What must be inside?" oninput="updateCookSuggestions()">
+            <button class="btn-add" onclick="addCookTag()">+</button>
+        </div>
+        <div class="tag-scroll" id="cook-suggestions"></div>
+        <div class="tag-scroll" id="cook-tags"></div>
+        <div class="card-group" id="cook-results"></div>
+    </main>
+
+    <nav>
+        <button class="nav-item active" onclick="switchTab('planner', 'Weekly Planner')"><span class="nav-icon">📅</span>Planner</button>
+        <button class="nav-item" onclick="switchTab('shop', 'Shopping List')"><span class="nav-icon">🛒</span>Shop</button>
+        <button class="nav-item" onclick="switchTab('pantry', 'My Pantry')"><span class="nav-icon">🏠</span>Pantry</button>
+        <button class="nav-item" onclick="switchTab('recipes', 'My Recipes')"><span class="nav-icon">🍴</span>Recipes</button>
+        <button class="nav-item" onclick="switchTab('cook', 'Cook Now')"><span class="nav-icon">🍳</span>Cook Now</button>
+    </nav>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modal-title">Select</span>
+                <span style="color:var(--accent); font-weight:600; font-size:17px; cursor:pointer;" onclick="closeModal()">Close</span>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+<script>
+// --- FIREBASE INITIALIZATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow",
+    authDomain: "smartbite-67853.firebaseapp.com",
+    projectId: "smartbite-67853",
+    storageBucket: "smartbite-67853.firebasestorage.app",
+    messagingSenderId: "355276308842",
+    appId: "1:355276308842:web:86351c955c63c372986513",
+    databaseURL: "https://smartbite-67853-default-rtdb.europe-west1.firebasedatabase.app"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const dbRef = database.ref('smartbite_shared_data');
+
+let db = { plan: [], pantry: [], savedIng: [], checked: [], dishes: [] };
+
+dbRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        db.plan = data.plan || [];
+        db.pantry = data.pantry || [];
+        db.savedIng = data.savedIng || [];
+        db.checked = data.checked || [];
+        db.dishes = data.dishes || [];
+        renderAllViews();
+    } else {
+        initDefaultDB();
+    }
+});
+
+function saveDB() { dbRef.set(db); }
+
+const allCategories = ["Bakery", "Dairy", "Drinks", "Household", "Meat", "Other", "Pantry", "Veg & Fruit"];
+const autoCategoryDict = {
+    "milk":"Dairy","cheese":"Dairy","butter":"Dairy","yogurt":"Dairy","cream":"Dairy","egg":"Dairy","eggs":"Dairy",
+    "water":"Drinks","juice":"Drinks","beer":"Drinks","wine":"Drinks","coffee":"Drinks","tea":"Drinks",
+    "chicken":"Meat","beef":"Meat","pork":"Meat","fish":"Meat","salmon":"Meat","bacon":"Meat","mince":"Meat","sausages":"Meat",
+    "apple":"Veg & Fruit","banana":"Veg & Fruit","tomato":"Veg & Fruit","tomatoes":"Veg & Fruit","onion":"Veg & Fruit","garlic":"Veg & Fruit","potato":"Veg & Fruit","potatoes":"Veg & Fruit",
+    "bread":"Bakery","rolls":"Bakery","tortilla":"Bakery","cake":"Bakery",
+    "flour":"Pantry","sugar":"Pantry","salt":"Pantry","oil":"Pantry","olive oil":"Pantry","rice":"Pantry","pasta":"Pantry","spaghetti":"Pantry","spices":"Pantry",
+    "soap":"Household","paper towel":"Household","toilet paper":"Household","detergent":"Household"
+};
+
+function initDefaultDB() {
+    db = {
+        plan: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d => ({day: d, dish: null})),
+        pantry: [], savedIng: [], checked: [], 
+        dishes: [
+            { id: 1, name: "Dorsz z puree z batatów", ingredients: ["Cod", "Sweet potato", "Onion", "Garlic", "Butter"] },
+            { id: 2, name: "Spag Bol", ingredients: ["Spaghetti", "Mince", "Tinned tomatoes", "Onion", "Garlic"] },
+            { id: 3, name: "Carbonara", ingredients: ["Spaghetti", "Bacon", "Eggs", "Parmesan"] },
+            { id: 4, name: "Butter Chicken", ingredients: ["Chicken", "Rice", "Tinned tomatoes", "Cream"] },
+            { id: 5, name: "Kebab", ingredients: ["Chicken", "Tortilla", "Cabbage", "Onion"] }
+        ]
+    };
+    db.dishes.forEach(d => d.ingredients.forEach(i => saveIngCat(i)));
+    saveDB();
+}
+
+let cookTags = [];
+let editRecipeId = null;
+let editRecipeIngs = [];
+
+function haptic() { if(navigator.vibrate) navigator.vibrate(15); }
+
+function getCat(name) {
+    let lower = name.toLowerCase().trim();
+    let found = db.savedIng.find(i => i.name.toLowerCase() === lower);
+    if (found) return found.category;
+    return autoCategoryDict[lower] || "Other";
+}
+
+function saveIngCat(name, forceCat = null) {
+    let lower = name.toLowerCase().trim();
+    let cat = forceCat || autoCategoryDict[lower] || "Other";
+    let idx = db.savedIng.findIndex(i => i.name.toLowerCase() === lower);
+    if (idx >= 0) { if(forceCat) db.savedIng[idx].category = cat; } 
+    else { db.savedIng.push({name: name.charAt(0).toUpperCase() + name.slice(1), category: cat}); }
+}
+
+function fuzzy(input, excludeList) {
+    let lower = input.toLowerCase().trim();
+    if(!lower) return [];
+    let set = new Set();
+    db.savedIng.forEach(i => { if(i.name.toLowerCase().includes(lower)) set.add(i.name); });
+    Object.keys(autoCategoryDict).forEach(k => { if(k.includes(lower)) set.add(k.charAt(0).toUpperCase() + k.slice(1)); });
+    let exLower = excludeList.map(e => e.toLowerCase());
+    return Array.from(set).filter(s => !exLower.includes(s.toLowerCase())).slice(0,6);
+}
+
+function switchTab(tabId, title) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+    document.getElementById('page-title').innerText = title;
+    
+    let actionBtn = document.getElementById('header-action');
+    actionBtn.style.display = 'none';
+
+    if(tabId === 'shop') {
+        actionBtn.style.display = 'block'; actionBtn.innerText = 'Clear Done';
+        actionBtn.onclick = () => { db.checked = []; saveDB(); haptic(); };
+    }
+    if(tabId === 'recipes') {
+        actionBtn.style.display = 'block'; actionBtn.innerText = '+ Add';
+        actionBtn.onclick = () => openRecipeModal(null);
+    }
+    renderAllViews();
+}
+
+function renderAllViews() {
+    renderPlanner(); renderShop(); renderPantry(); renderRecipes(); renderCookNow();
+}
+
+function openModal(title, html) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-body').innerHTML = html;
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+// PLANNER
+function renderPlanner() {
+    if(!db.plan || db.plan.length === 0) return;
+    let html = '';
+    db.plan.forEach((p, idx) => {
+        let text = p.dish ? `<span style="color:var(--accent)">${p.dish}</span>` : `<span style="color:var(--text-sec)">Add Dish...</span>`;
+        html += `<div class="card-row" onclick="pickDishForDay(${idx})">
+            <span style="width:100px; font-weight:600; color:var(--text-main);">${p.day}</span>
+            <span class="text-main">${text}</span>
+        </div>`;
+    });
+    document.getElementById('planner-list').innerHTML = html;
+}
+
+function pickDishForDay(dayIdx) {
+    let html = `<div class="card-group modal-card-group"><div class="card-row" style="color:red; font-weight:600;" onclick="setDayDish(${dayIdx}, null)">Clear</div>`;
+    db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
+        html += `<div class="card-row text-main" onclick="setDayDish(${dayIdx}, '${d.name.replace(/'/g, "\\'")}')">${d.name}</div>`;
+    });
+    html += `</div>`;
+    openModal(`Select for ${db.plan[dayIdx].day}`, html);
+}
+function setDayDish(dayIdx, dishName) { haptic(); db.plan[dayIdx].dish = dishName; saveDB(); closeModal(); }
+
+// SHOP
+function renderShop() {
+    if(!db.plan) return;
+    let activeDishes = db.plan.filter(p => p.dish).map(p => p.dish);
+    let agg = {};
+    activeDishes.forEach(dName => {
+        let dish = db.dishes.find(d => d.name === dName);
+        if(dish) {
+            dish.ingredients.forEach(i => {
+                let clean = i.trim();
+                if(agg[clean]) { agg[clean].count++; if(!agg[clean].dishes.includes(dName)) agg[clean].dishes.push(dName); }
+                else agg[clean] = { name: clean, count: 1, dishes: [dName], cat: getCat(clean), isPantry: false };
+            });
+        }
+    });
+
+    db.pantry.filter(p => !p.isAvail).forEach(p => {
+        let clean = p.name;
+        if(agg[clean]) agg[clean].isPantry = true;
+        else agg[clean] = { name: clean, count: 0, dishes: ["Pantry Stock"], cat: getCat(clean), isPantry: true };
+    });
+
+    let items = Object.values(agg);
+    let html = '';
+    
+    if(items.length === 0) { document.getElementById('shop-list').innerHTML = `<div class="card-group"><div class="card-row text-sec">Everything in stock!</div></div>`; return; }
+
+    allCategories.forEach(c => {
+        let catItems = items.filter(i => i.cat === c);
+        if(catItems.length > 0) {
+            html += `<div class="card-header">${c}</div><div class="card-group">`;
+            catItems.forEach(i => {
+                let isChecked = db.checked.includes(i.name.toLowerCase()) || (db.pantry.find(p=>p.name.toLowerCase()===i.name.toLowerCase())?.isAvail === true);
+                let checkIcon = isChecked ? '✅' : '⚪️';
+                let style = isChecked ? 'crossed' : '';
+                let badge = i.isPantry ? `<span class="badge">PANTRY</span>` : '';
+                let count = i.count > 1 ? ` <span style="color:var(--accent); font-weight:800;">(${i.count}x)</span>` : '';
+                html += `<div class="card-row" onclick="toggleShopItem('${i.name.replace(/'/g, "\\'")}')">
+                    <div class="row-left"><span class="icon" style="font-size:18px">${checkIcon}</span>
+                    <div><div class="text-main ${style}">${i.name}${badge}${count}</div><div class="text-sub">For: ${i.dishes.join(', ')}</div></div></div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+    });
+    document.getElementById('shop-list').innerHTML = html;
+}
+
+function toggleShopItem(name) {
+    haptic(); let lower = name.toLowerCase(); let pItem = db.pantry.find(p => p.name.toLowerCase() === lower);
+    if(pItem) pItem.isAvail = !pItem.isAvail;
+    else { if(db.checked.includes(lower)) db.checked = db.checked.filter(i => i !== lower); else db.checked.push(lower); }
+    saveDB();
+}
+
+// PANTRY
+function renderPantry() {
+    if(!db.pantry) return;
+    let html = '';
+    allCategories.forEach(c => {
+        let catItems = db.pantry.filter(p => getCat(p.name) === c);
+        if(catItems.length > 0) {
+            html += `<div class="card-header">${c}</div><div class="card-group">`;
+            catItems.forEach(i => {
+                let checkIcon = i.isAvail ? '✅' : '⚪️';
+                let style = i.isAvail ? '' : 'color:var(--text-sec);';
+                let missing = i.isAvail ? '' : '<span style="color:#ff453a; font-size:13px; font-weight:500;">Missing</span>';
+                html += `<div class="card-row">
+                    <div class="row-left" onclick="togglePantryAvail('${i.name.replace(/'/g, "\\'")}')"><span class="icon" style="font-size:18px">${checkIcon}</span><span class="text-main" style="${style}">${i.name}</span></div>
+                    <div>${missing} <span class="icon" style="color:#ff453a; margin-left:14px;" onclick="deletePantry('${i.name.replace(/'/g, "\\'")}')">🗑</span></div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+    });
+    document.getElementById('pantry-list').innerHTML = html;
+}
+
+function updatePantrySuggestions() {
+    let input = document.getElementById('pantry-input').value; let exclude = db.pantry.map(p => p.name); let suggs = fuzzy(input, exclude);
+    document.getElementById('pantry-suggestions').innerHTML = suggs.map(s => `<span class="tag" onclick="fillPantryInput('${s}')">${s}</span>`).join('');
+}
+function fillPantryInput(val) { document.getElementById('pantry-input').value = val; addPantryItem(); }
+function addPantryItem() {
+    let val = document.getElementById('pantry-input').value.trim();
+    if(val && !db.pantry.find(p => p.name.toLowerCase() === val.toLowerCase())) {
+        let clean = val.charAt(0).toUpperCase() + val.slice(1);
+        db.pantry.push({name: clean, isAvail: true}); saveIngCat(clean); document.getElementById('pantry-input').value = ''; updatePantrySuggestions(); haptic(); saveDB();
+    }
+}
+function togglePantryAvail(name) { haptic(); let i = db.pantry.find(p=>p.name===name); if(i) i.isAvail = !i.isAvail; saveDB(); }
+function deletePantry(name) { haptic(); db.pantry = db.pantry.filter(p=>p.name!==name); saveDB(); }
+
+// RECIPES
+function renderRecipes() {
+    if(!db.dishes) return;
+    let html = '';
+    db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
+        html += `<div class="card-row" onclick="openRecipeModal(${d.id})">
+            <div><div class="text-main" style="font-weight:600; color:var(--accent);">${d.name}</div><div class="text-sub">${d.ingredients.join(', ')}</div></div>
+        </div>`;
+    });
+    document.getElementById('recipes-list').innerHTML = html;
+}
+
+function openRecipeModal(id) {
+    let dish = db.dishes.find(d => d.id === id);
+    editRecipeId = id; editRecipeIngs = dish ? [...dish.ingredients] : [];
+    let name = dish ? dish.name : '';
+    
+    let html = `
+        <input type="text" id="recipe-name" class="ios-input" value="${name}" placeholder="Dish Name" style="margin-bottom:15px;">
+        <div class="card-group modal-card-group" id="recipe-ings-list"></div>
+        <div class="search-bar" style="margin-bottom:15px;">
+            <input type="text" id="recipe-ing-input" placeholder="New item..." oninput="updateRecipeSugg()">
+            <button class="btn-add" onclick="addRecipeIng()">+</button>
+        </div>
+        <div class="tag-scroll" id="recipe-suggs"></div>
+        <button class="ios-btn-primary" onclick="saveRecipe()">Save Recipe</button>
+        ${id ? `<button class="ios-btn-danger" onclick="deleteRecipe(${id})">Delete Recipe</button>` : ''}
+    `;
+    openModal(id ? "Edit Recipe" : "New Recipe", html);
+    renderRecipeIngs();
+}
+
+function renderRecipeIngs() {
+    let html = editRecipeIngs.map((ing, idx) => `<div class="card-row"><span class="text-main">${ing}</span> <span style="color:#ff453a; font-size:20px;" onclick="delRecipeIng(${idx})">🗑</span></div>`).join('');
+    document.getElementById('recipe-ings-list').innerHTML = html;
+}
+function delRecipeIng(idx) { editRecipeIngs.splice(idx, 1); renderRecipeIngs(); }
+function updateRecipeSugg() {
+    let input = document.getElementById('recipe-ing-input').value; let suggs = fuzzy(input, editRecipeIngs);
+    document.getElementById('recipe-suggs').innerHTML = suggs.map(s => `<span class="tag" onclick="fillRecipeIng('${s}')">${s}</span>`).join('');
+}
+function fillRecipeIng(val) { document.getElementById('recipe-ing-input').value = val; addRecipeIng(); }
+function addRecipeIng() {
+    let val = document.getElementById('recipe-ing-input').value.trim();
+    if(val && !editRecipeIngs.includes(val)) {
+        let clean = val.charAt(0).toUpperCase() + val.slice(1);
+        editRecipeIngs.push(clean); saveIngCat(clean); document.getElementById('recipe-ing-input').value = ''; updateRecipeSugg(); renderRecipeIngs(); haptic();
+    }
+}
+function saveRecipe() {
+    let name = document.getElementById('recipe-name').value.trim();
+    if(!name) return alert("Enter recipe name!");
+    if(editRecipeId) { let d = db.dishes.find(x=>x.id===editRecipeId); d.name = name; d.ingredients = editRecipeIngs; }
+    else { db.dishes.push({id: Date.now(), name: name, ingredients: editRecipeIngs}); }
+    saveDB(); closeModal(); haptic();
+}
+function deleteRecipe(id) { db.dishes = db.dishes.filter(d=>d.id!==id); saveDB(); closeModal(); haptic(); }
+
+// COOK NOW
+function updateCookSuggestions() {
+    let input = document.getElementById('cook-input').value; let exclude = cookTags; let suggs = fuzzy(input, exclude);
+    document.getElementById('cook-suggestions').innerHTML = suggs.map(s => `<span class="tag" onclick="fillCookInput('${s}')">${s}</span>`).join('');
+}
+function fillCookInput(val) { document.getElementById('cook-input').value = val; addCookTag(); }
+function addCookTag() {
+    let val = document.getElementById('cook-input').value.trim();
+    if(val) { let clean = val.charAt(0).toUpperCase() + val.slice(1); if(!cookTags.includes(clean)) cookTags.push(clean); }
+    document.getElementById('cook-input').value = ''; updateCookSuggestions(); renderCookNow(); haptic();
+}
+function removeCookTag(tag) { cookTags = cookTags.filter(t => t !== tag); renderCookNow(); haptic(); }
+function renderCookNow() {
+    document.getElementById('cook-tags').innerHTML = cookTags.map(t => `<span class="tag active" onclick="removeCookTag('${t}')">${t} ✕</span>`).join('');
+    let list = document.getElementById('cook-results');
+    if(cookTags.length === 0) { list.innerHTML = `<div class="card-row text-sec" style="justify-content:center;">Type an ingredient...</div>`; return; }
+
+    let availPantry = db.pantry.filter(p=>p.isAvail).map(p=>p.name.toLowerCase());
+    let allAvail = [...new Set([...availPantry, ...cookTags.map(t=>t.toLowerCase())])];
+
+    let results = db.dishes.map(d => {
+        let matchCount = d.ingredients.filter(i => allAvail.includes(i.toLowerCase())).length;
+        return { dish: d, count: matchCount };
+    }).filter(item => {
+        let dLower = item.dish.ingredients.map(i=>i.toLowerCase());
+        return cookTags.every(t => dLower.includes(t.toLowerCase()));
+    }).sort((a,b) => b.count - a.count);
+
+    if(results.length === 0) { list.innerHTML = `<div class="card-row text-sec" style="justify-content:center;">No recipes match.</div>`; return; }
+
+    list.innerHTML = results.map(r => `
+        <div class="card-row">
+            <div><div class="text-main" style="font-weight:600; color:var(--accent);">${r.dish.name}</div><div class="text-sub">${r.dish.ingredients.join(', ')}</div></div>
+            <div style="font-size:13px; font-weight:700; color:var(--text-sec);">${r.count}/${r.dish.ingredients.length}</div>
+        </div>
+    `).join('');
+}
+
+switchTab('planner', 'Weekly Planner');
+</script>
+</body>
+</html>
