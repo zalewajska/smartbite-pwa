@@ -14,8 +14,8 @@
             --text: #ffffff;
             --sec: #8e8e93;
             --accent: #ebd9cc;
-            --border: rgba(255, 255, 255, 0.1);
-            --glass: rgba(28, 28, 30, 0.85);
+            --border: rgba(255, 255, 255, 0.12);
+            --glass: rgba(25, 25, 25, 0.75);
         }
         * { box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -26,41 +26,43 @@
         }
         header { 
             position: sticky; top: 0; background: var(--glass); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+            backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%);
+            padding: 12px 20px 16px; display: flex; justify-content: space-between; align-items: center; 
             z-index: 1000; border-bottom: 0.5px solid var(--border);
         }
-        h1 { margin: 0; font-size: 32px; font-weight: 700; }
-        .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; }
+        h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.8px; }
+        .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer; }
         
         .view { display: none; padding: 20px; }
-        .view.active { display: block; }
+        .view.active { display: block; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .card-group { background: var(--card); border-radius: 14px; margin-bottom: 25px; overflow: hidden; border: 0.5px solid var(--border); }
         .card-row { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .card-row:last-child { border-bottom: none; }
+        .card-row:active { background: rgba(255,255,255,0.08); }
         
         .ios-input { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
-        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 12px; align-items: center; margin-bottom: 20px; }
+        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 14px; align-items: center; margin-bottom: 20px; border: 0.5px solid var(--border); }
+        .search-bar input { flex: 1; border: none; background: transparent; color: #fff; font-size: 17px; padding: 10px 0; outline: none; }
         .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; }
         .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; }
 
-        /* FIXED NAV FIX */
         nav { 
-            position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
-            background: var(--glass) !important; backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            position: fixed !important; bottom: 0 !important; left: 0; right: 0;
+            background: var(--glass) !important; backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
             border-top: 0.5px solid var(--border);
             display: flex; justify-content: space-around;
             padding-bottom: env(safe-area-inset-bottom);
-            padding-top: 15px; z-index: 9999; height: calc(65px + env(safe-area-inset-bottom));
+            padding-top: 12px; z-index: 9999;
         }
-        .nav-item { flex: 1; text-align: center; color: var(--sec); font-size: 10px; font-weight: 600; border: none; background: none; }
+        .nav-item { flex: 1; text-align: center; color: var(--sec); font-size: 10px; font-weight: 600; border: none; background: none; padding: 5px 0 10px; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 4px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: flex-end; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--card); width: 100%; max-height: 90vh; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; }
+        .modal { background: var(--card); width: 100%; max-height: 90vh; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0, 0.5, 0.5, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
         .modal-body { padding: 20px; overflow-y: auto; padding-bottom: 60px; }
     </style>
@@ -79,52 +81,45 @@
     </main>
     <main id="v-recipes" class="view"><div id="l-recipes"></div></main>
     <main id="v-cook" class="view">
-        <div class="search-bar"><input type="text" id="ci" placeholder="Search ingredient..." oninput="renderC()"></div>
+        <div class="search-bar"><input type="text" id="ci" placeholder="Search by ingredient..." oninput="renderC()"></div>
         <div id="l-cook"></div>
     </main>
 
     <nav>
-        <button class="nav-item active" onclick="st('planner','Planner')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Planner</button>
-        <button class="nav-item" onclick="st('shop','Shop')"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Shop</button>
-        <button class="nav-item" onclick="st('pantry','Pantry')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Pantry</button>
-        <button class="nav-item" onclick="st('recipes','Recipes')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Recipes</button>
-        <button class="nav-item" onclick="st('cook','Cook Now')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2c0 10 8 10 8 18a8 8 0 0 1-16 0c0-8 8-8 8-18z"></path></svg>Cook</button>
+        <button class="nav-item active" onclick="st('planner','Planner')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Planner
+        </button>
+        <button class="nav-item" onclick="st('shop','Shop')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Shop
+        </button>
+        <button class="nav-item" onclick="st('pantry','Pantry')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Pantry
+        </button>
+        <button class="nav-item" onclick="st('recipes','Recipes')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Recipes
+        </button>
+        <button class="nav-item" onclick="st('cook','Cook Now')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>Cook
+        </button>
     </nav>
 
-    <div class="modal-overlay" id="mo"><div class="modal"><div class="modal-header"><span id="mt" style="font-weight:800"></span><span style="color:var(--accent)" onclick="cm()">Close</span></div><div class="modal-body" id="mb"></div></div></div>
+    <div class="modal-overlay" id="mo"><div class="modal"><div class="modal-header"><span id="mt" style="font-weight:800; font-size:20px;"></span><span style="color:var(--accent); font-weight:600;" onclick="cm()">Close</span></div><div class="modal-body" id="mb"></div></div></div>
 
 <script>
-const firebaseConfig = { apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow", authDomain: "smartbite-67853.firebaseapp.com", projectId: "smartbite-67853", databaseURL: "https://smartbite-67853-default-rtdb.europe-west1.firebasedatabase.app" };
-firebase.initializeApp(firebaseConfig);
-const rdb = firebase.database();
-let db = { plan: [], pantry: [], dishes: [], checked: [] };
+const firebaseConfig = {
+    apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow",
+    authDomain: "smartbite-67853.firebaseapp.com",
+    projectId: "smartbite-67853",
+    // TUTAJ WKLEJ DOKŁADNY LINK Z TWOJEJ KONSOLI:
+    databaseURL: "https://smartbite-67853-default-rtdb.europe-west1.firebasedatabase.app" 
+};
 
-// --- GŁĘBOKIE SKANOWANIE BAZY ---
-rdb.ref('/').on('value', (s) => {
-    const root = s.val() || {};
-    console.log("Database Raw:", root);
-
-    // Szukamy obiektu 'dishes' gdziekolwiek jest
-    let foundDishes = [];
-    if (root.smartbite && root.smartbite.dishes) foundDishes = root.smartbite.dishes;
-    else if (root.smartbite_shared_data && root.smartbite_shared_data.dishes) foundDishes = root.smartbite_shared_data.dishes;
-    else {
-        // Jeśli nie ma w głównych folderach, szukamy w całym root
-        Object.keys(root).forEach(key => {
-            if (root[key].dishes) foundDishes = root[key].dishes;
-        });
-    }
-
-    db.dishes = foundDishes || [];
-    const source = root.smartbite || root.smartbite_shared_data || {};
-    db.plan = source.plan || ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
-    db.pantry = source.pantry || [];
-    db.checked = source.checked || [];
-    
+rdb.on('value', (s) => {
+    db = s.val() || { plan: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null})), pantry:[], dishes:[], checked:[] };
     renderAll();
 });
 
-function save() { rdb.ref('smartbite').set(db); rdb.ref('smartbite_shared_data').set(db); }
+function save() { rdb.set(db); }
 
 function st(id, t) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -150,7 +145,7 @@ function renderAll() {
 
     // Recipes
     if(!db.dishes.length) {
-        document.getElementById('l-recipes').innerHTML = `<div style="text-align:center;padding:40px;color:var(--sec)">No recipes found.<br><br><button class="btn-primary" onclick="alert(JSON.stringify(db))">Diagnostic</button></div>`;
+        document.getElementById('l-recipes').innerHTML = `<div style="text-align:center;padding:60px;color:var(--sec)">No recipes yet.</div>`;
     } else {
         let rh = '<div class="card-group">';
         db.dishes.forEach(d => rh += `<div class="card-row" onclick="oe(${d.id})"><b>${d.name}</b></div>`);
@@ -160,8 +155,8 @@ function renderAll() {
     // Shop
     let sl = []; db.plan.forEach(p => { if(p.dish){ const d=db.dishes.find(x=>x.name===p.dish); if(d) d.ingredients.forEach(i=>{if(!sl.includes(i))sl.push(i)})}});
     let sh = '<div class="card-group">';
-    sl.forEach(i => sh += `<div class="card-row" onclick="tc('${i}')"><span>${i}</span><span>${db.checked.includes(i)?'✅':'⚪️'}</span></div>`);
-    document.getElementById('l-shop').innerHTML = sl.length ? sh+'</div>' : '<div style="text-align:center;padding:40px;color:var(--sec)">Shop list empty.</div>';
+    sl.forEach(i => sh += `<div class="card-row" onclick="tc('${i}')"><span style="${db.checked.includes(i)?'text-decoration:line-through;color:var(--sec)':''}">${i}</span><span>${db.checked.includes(i)?'✅':'⚪️'}</span></div>`);
+    document.getElementById('l-shop').innerHTML = sl.length ? sh+'</div>' : '<div style="text-align:center;padding:60px;color:var(--sec)">Empty.</div>';
 
     // Pantry
     let pah = '<div class="card-group">';
@@ -181,7 +176,7 @@ function oe(id=null) {
     cid=id; const d=db.dishes.find(x=>x.id===id); cigs=d?[...d.ingredients]:[];
     let h = `<input type="text" id="en" class="ios-input" value="${d?d.name:''}" placeholder="Name"><div id="ei" class="card-group"></div>
     <div class="search-bar"><input type="text" id="ein" placeholder="Ingredient..."><button class="btn-add" onclick="ai()">+</button></div>
-    <button class="btn-primary" onclick="sr()">Save</button>
+    <button class="btn-primary" onclick="sr()">Save Recipe</button>
     ${id?`<button style="color:red;width:100%;background:none;border:none;margin-top:20px;" onclick="dr()">Delete</button>`:''}`;
     om(id?'Edit':'New', h); ri();
 }
