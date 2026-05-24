@@ -38,7 +38,9 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .card-group { background: var(--card); border-radius: 14px; margin-bottom: 25px; overflow: hidden; border: 0.5px solid var(--border); }
+        .card-header { padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--sec); text-transform: uppercase; letter-spacing: 1px;}
         .card-row { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .card-row:last-child { border-bottom: none; }
         .card-row:active { background: rgba(255,255,255,0.08); }
         
         .ios-input { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
@@ -47,7 +49,6 @@
         .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; }
         .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; margin-top: 15px;}
 
-        /* Podpowiedzi - Tagi */
         .tag-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 12px; margin-bottom: 10px; scrollbar-width: none; }
         .tag-scroll::-webkit-scrollbar { display: none; }
         .tag { background: var(--card); border: 0.5px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; }
@@ -73,6 +74,7 @@
         .empty { text-align: center; padding: 60px 20px; color: var(--sec); font-size: 16px; }
         
         .trash-icon { width: 22px; height: 22px; color: #ff453a; display: block; }
+        .pantry-badge { font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 5px; background: rgba(255,255,255,0.1); color: var(--sec); margin-left: 8px; vertical-align: middle; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
@@ -119,8 +121,22 @@ const rdb = firebase.database().ref('smartbite_app');
 let db = { plan: [], pantry: [], dishes: [], checked: [] };
 let loaded = false;
 
-// Słownik podstawowych składników
-const dict = ["Bacon", "Spaghetti", "Eggs", "Parmesan", "Garlic", "Onion", "Tomato", "Chicken", "Beef", "Pork", "Rice", "Flour", "Sugar", "Milk", "Butter", "Cheese", "Olive oil", "Salt", "Pepper", "Cream"];
+// Kategoryzacja Składników
+const allCategories = ["Bakery", "Dairy", "Drinks", "Household", "Meat & Fish", "Pantry", "Veg & Fruit", "Other"];
+const catDict = {
+    "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy",
+    "water":"Drinks", "juice":"Drinks", "coffee":"Drinks", "tea":"Drinks",
+    "chicken":"Meat & Fish", "beef":"Meat & Fish", "pork":"Meat & Fish", "fish":"Meat & Fish", "salmon":"Meat & Fish", "bacon":"Meat & Fish", "mince":"Meat & Fish",
+    "apple":"Veg & Fruit", "banana":"Veg & Fruit", "tomato":"Veg & Fruit", "tomatoes":"Veg & Fruit", "onion":"Veg & Fruit", "garlic":"Veg & Fruit", "potato":"Veg & Fruit", "leek":"Veg & Fruit",
+    "bread":"Bakery", "rolls":"Bakery", "tortilla":"Bakery", "pasta":"Pantry", "spaghetti":"Pantry",
+    "flour":"Pantry", "sugar":"Pantry", "salt":"Pantry", "oil":"Pantry", "olive oil":"Pantry", "rice":"Pantry", "passata":"Pantry"
+};
+const dictWords = Object.keys(catDict).map(w => w.charAt(0).toUpperCase() + w.slice(1));
+
+function getCat(name) {
+    let lower = name.toLowerCase().trim();
+    return catDict[lower] || "Other";
+}
 
 rdb.on('value', (s) => {
     const data = s.val();
@@ -163,20 +179,84 @@ function renderAll() {
         document.getElementById('l-recipes').innerHTML = '<div class="empty">No recipes yet. Click + Add.</div>';
     } else {
         let rh = '<div class="card-group">';
-        db.dishes.forEach(d => rh += `<div class="card-row" onclick="oe(${d.id})"><b>${d.name}</b></div>`);
+        db.dishes.forEach(d => rh += `<div class="card-row" onclick="oe(${d.id})"><div><b style="font-size:17px;">${d.name}</b><div style="font-size:13px;color:var(--sec);margin-top:2px;">${d.ingredients.join(', ')}</div></div></div>`);
         document.getElementById('l-recipes').innerHTML = rh + '</div>';
     }
 
-    // Shop
-    let sl = []; if(db.plan) db.plan.forEach(p => { if(p.dish){ const d=(db.dishes||[]).find(x=>x.name===p.dish); if(d) d.ingredients.forEach(i=>{if(!sl.includes(i))sl.push(i)})}});
-    let sh = '<div class="card-group">';
-    sl.forEach(i => sh += `<div class="card-row" onclick="tc('${i}')"><span style="${db.checked && db.checked.includes(i)?'text-decoration:line-through;color:var(--sec)':''}">${i}</span><span>${db.checked && db.checked.includes(i)?'✅':'⚪️'}</span></div>`);
-    document.getElementById('l-shop').innerHTML = sl.length ? sh+'</div>' : '<div class="empty">Shop list empty.</div>';
+    // Shop (z Kategoriami i Agregacją)
+    let agg = {};
+    (db.plan || []).forEach(p => { 
+        if(p.dish) { 
+            const d = (db.dishes||[]).find(x=>x.name===p.dish); 
+            if(d) d.ingredients.forEach(i => {
+                let clean = i.trim();
+                let lower = clean.toLowerCase();
+                if(agg[lower]) {
+                    agg[lower].count++;
+                    if(!agg[lower].dishes.includes(p.dish)) agg[lower].dishes.push(p.dish);
+                } else {
+                    agg[lower] = { name: clean, count: 1, dishes: [p.dish], cat: getCat(clean) };
+                }
+            });
+        }
+    });
 
-    // Pantry
-    let pah = '<div class="card-group">';
-    (db.pantry || []).forEach((p,i) => pah += `<div class="card-row"><span>${p.name}</span><svg onclick="db.pantry.splice(${i},1);save()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>`);
-    document.getElementById('l-pantry').innerHTML = pah + '</div>';
+    let items = Object.values(agg);
+    if(items.length === 0) {
+        document.getElementById('l-shop').innerHTML = '<div class="empty">Shop list empty. Plan some meals.</div>';
+    } else {
+        let sh = '';
+        allCategories.forEach(c => {
+            let catItems = items.filter(i => i.cat === c);
+            if(catItems.length > 0) {
+                sh += `<div class="card-header">${c}</div><div class="card-group">`;
+                catItems.forEach(i => {
+                    let inPantry = (db.pantry||[]).some(p => p.name.toLowerCase() === i.name.toLowerCase());
+                    let isChecked = (db.checked && db.checked.includes(i.name.toLowerCase())) || inPantry;
+                    
+                    let checkColor = isChecked ? 'var(--accent)' : 'var(--sec)';
+                    let checkFill = isChecked ? 'var(--accent)' : 'none';
+                    let style = isChecked ? 'text-decoration:line-through;color:var(--sec)' : '';
+                    let countStr = i.count > 1 ? ` <span style="color:var(--accent); font-weight:700">(${i.count}x)</span>` : '';
+                    let badge = inPantry ? `<span class="pantry-badge">IN PANTRY</span>` : '';
+
+                    sh += `<div class="card-row" onclick="tc('${i.name.toLowerCase()}')">
+                        <div style="display:flex; align-items:center; gap:16px; flex:1;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
+                            <div>
+                                <div style="font-size:17px; font-weight:500; ${style}">${i.name}${countStr}${badge}</div>
+                                <div style="font-size:13px; color:var(--sec); margin-top:2px;">${i.dishes.join(', ')}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                sh += `</div>`;
+            }
+        });
+        document.getElementById('l-shop').innerHTML = sh;
+    }
+
+    // Pantry (z Kategoriami)
+    if(!db.pantry || db.pantry.length === 0) {
+        document.getElementById('l-pantry').innerHTML = '<div class="empty">Pantry is empty.</div>';
+    } else {
+        let pah = '';
+        allCategories.forEach(c => {
+            let catItems = db.pantry.filter(p => getCat(p.name) === c);
+            if(catItems.length > 0) {
+                pah += `<div class="card-header">${c}</div><div class="card-group">`;
+                catItems.forEach(p => {
+                    let idx = db.pantry.indexOf(p);
+                    pah += `<div class="card-row">
+                        <span style="font-size:17px; font-weight:500;">${p.name}</span>
+                        <svg onclick="db.pantry.splice(${idx},1);save()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </div>`;
+                });
+                pah += `</div>`;
+            }
+        });
+        document.getElementById('l-pantry').innerHTML = pah;
+    }
 }
 
 function pd(i) {
@@ -187,8 +267,6 @@ function pd(i) {
 function sd(i,n) { db.plan[i].dish=n; save(); cm(); }
 
 let cid=null; let cigs=[];
-
-// Edytor Przepisów
 function oe(id=null) {
     cid=id; const d=(db.dishes || []).find(x => x.id === id); cigs=d?[...d.ingredients]:[];
     let h = `
@@ -196,7 +274,7 @@ function oe(id=null) {
     <div id="ei" class="card-group" style="margin-bottom: 10px;"></div>
     
     <form class="search-bar" onsubmit="event.preventDefault(); ai();">
-        <input type="text" id="ein" placeholder="Add ingredient..." oninput="showSuggs()">
+        <input type="text" id="ein" placeholder="Add ingredient..." oninput="showSuggs()" autocomplete="off">
         <button type="submit" class="btn-add">+</button>
     </form>
     <div class="tag-scroll" id="rsuggs"></div>
@@ -208,24 +286,22 @@ function oe(id=null) {
     ri();
 }
 
-// Funkcja do rysowania ikony kosza przy składnikach
 function ri() { 
     const box = document.getElementById('ei');
     if(cigs.length === 0) { box.style.display = 'none'; return; }
     box.style.display = 'block';
     box.innerHTML = cigs.map((n,i)=>`
         <div class="card-row">
-            <span>${n}</span>
+            <span style="font-size:17px;">${n}</span>
             <svg onclick="cigs.splice(${i},1);ri()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </div>`).join(''); 
 }
 
-// Podpowiedzi w edytorze przepisu
 function showSuggs() {
     const val = document.getElementById('ein').value.toLowerCase().trim();
     if(!val) { document.getElementById('rsuggs').innerHTML = ''; return; }
     
-    let all = [...new Set([...dict, ...(db.pantry||[]).map(p=>p.name), ...(db.dishes||[]).flatMap(d=>d.ingredients)])];
+    let all = [...new Set([...dictWords, ...(db.pantry||[]).map(p=>p.name), ...(db.dishes||[]).flatMap(d=>d.ingredients)])];
     let matches = all.filter(i => i.toLowerCase().includes(val) && !cigs.some(c=>c.toLowerCase()===i.toLowerCase())).slice(0, 6);
     
     document.getElementById('rsuggs').innerHTML = matches.map(i => `<span class="tag" onclick="addSugg('${i}')">${i}</span>`).join('');
@@ -235,7 +311,7 @@ function addSugg(val) {
     cigs.push(val.charAt(0).toUpperCase() + val.slice(1));
     document.getElementById('ein').value = '';
     showSuggs(); ri();
-    document.getElementById('ein').focus(); // Utrzymanie klawiatury
+    document.getElementById('ein').focus(); 
 }
 
 function ai() { 
@@ -245,7 +321,7 @@ function ai() {
         document.getElementById('ein').value=''; 
         showSuggs(); ri();
     }
-    document.getElementById('ein').focus(); // Utrzymanie klawiatury po kliknięciu plusa
+    document.getElementById('ein').focus(); 
 }
 
 function sr() { 
@@ -258,7 +334,6 @@ function sr() {
 
 function dr() { db.dishes=db.dishes.filter(x=>x.id!==cid); save(); cm(); }
 
-// Spiżarnia z klawiaturą
 function addP() { 
     const inp = document.getElementById('pi');
     const v = inp.value.trim(); 
@@ -272,13 +347,19 @@ function addP() {
 }
 
 function renderC() {
-    const v=document.getElementById('ci').value.toLowerCase(); if(!v) return;
+    const v=document.getElementById('ci').value.toLowerCase(); if(!v) { document.getElementById('l-cook').innerHTML=''; return; }
     const m=(db.dishes || []).filter(d=>d.ingredients.some(i=>i.toLowerCase().includes(v)));
     let h='<div class="card-group">';
     m.forEach(d=>h+=`<div class="card-row"><b>${d.name}</b></div>`);
     document.getElementById('l-cook').innerHTML=h+'</div>';
 }
-function tc(i) { if(!db.checked) db.checked = []; if(db.checked.includes(i)) db.checked=db.checked.filter(x=>x!==i); else db.checked.push(i); save(); }
+
+function tc(i) { 
+    if(!db.checked) db.checked = []; 
+    if(db.checked.includes(i)) db.checked=db.checked.filter(x=>x!==i); 
+    else db.checked.push(i); 
+    save(); 
+}
 </script>
 </body>
 </html>
