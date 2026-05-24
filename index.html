@@ -39,7 +39,7 @@
 
         .card-group { background: var(--card); border-radius: 14px; margin-bottom: 25px; overflow: hidden; border: 0.5px solid var(--border); }
         .card-header { padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--sec); text-transform: uppercase; letter-spacing: 1px;}
-        .card-row { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .card-row { padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .card-row:last-child { border-bottom: none; }
         .card-row:active { background: rgba(255,255,255,0.08); }
         
@@ -118,24 +118,38 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const rdb = firebase.database().ref('smartbite_app'); 
-let db = { plan: [], pantry: [], dishes: [], checked: [] };
+let db = { plan: [], pantry: [], dishes: [], checked: [], customDict: [] };
 let loaded = false;
 
-// Kategoryzacja Składników
+// Rozbudowana Kategoryzacja (Z logicznym wyszukiwaniem słów kluczowych)
 const allCategories = ["Bakery", "Dairy", "Drinks", "Household", "Meat & Fish", "Pantry", "Veg & Fruit", "Other"];
 const catDict = {
-    "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy",
-    "water":"Drinks", "juice":"Drinks", "coffee":"Drinks", "tea":"Drinks",
-    "chicken":"Meat & Fish", "beef":"Meat & Fish", "pork":"Meat & Fish", "fish":"Meat & Fish", "salmon":"Meat & Fish", "bacon":"Meat & Fish", "mince":"Meat & Fish",
-    "apple":"Veg & Fruit", "banana":"Veg & Fruit", "tomato":"Veg & Fruit", "tomatoes":"Veg & Fruit", "onion":"Veg & Fruit", "garlic":"Veg & Fruit", "potato":"Veg & Fruit", "leek":"Veg & Fruit",
-    "bread":"Bakery", "rolls":"Bakery", "tortilla":"Bakery", "pasta":"Pantry", "spaghetti":"Pantry",
-    "flour":"Pantry", "sugar":"Pantry", "salt":"Pantry", "oil":"Pantry", "olive oil":"Pantry", "rice":"Pantry", "passata":"Pantry"
+    "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy", "pecorino":"Dairy", "mozzarella":"Dairy", "feta":"Dairy",
+    "water":"Drinks", "juice":"Drinks", "coffee":"Drinks", "tea":"Drinks", "wine":"Drinks", "beer":"Drinks",
+    "chicken":"Meat & Fish", "beef":"Meat & Fish", "pork":"Meat & Fish", "fish":"Meat & Fish", "salmon":"Meat & Fish", "bacon":"Meat & Fish", "mince":"Meat & Fish", "sausage":"Meat & Fish", "ham":"Meat & Fish",
+    "apple":"Veg & Fruit", "banana":"Veg & Fruit", "tomato":"Veg & Fruit", "onion":"Veg & Fruit", "garlic":"Veg & Fruit", "potato":"Veg & Fruit", "leek":"Veg & Fruit", "carrot":"Veg & Fruit", "celery":"Veg & Fruit", "lovage":"Veg & Fruit", "parsley":"Veg & Fruit", "lemon":"Veg & Fruit", "lime":"Veg & Fruit", "pepper":"Veg & Fruit", "broccoli":"Veg & Fruit", "spinach":"Veg & Fruit", "cabbage":"Veg & Fruit", "mushroom":"Veg & Fruit",
+    "bread":"Bakery", "roll":"Bakery", "tortilla":"Bakery", "pasta":"Pantry", "spaghetti":"Pantry", "noodle":"Pantry",
+    "flour":"Pantry", "sugar":"Pantry", "salt":"Pantry", "oil":"Pantry", "rice":"Pantry", "passata":"Pantry", "ketchup":"Pantry", "mayo":"Pantry", "mustard":"Pantry", "vinegar":"Pantry", "soy sauce":"Pantry", "spice":"Pantry", "paprika":"Pantry", "oregano":"Pantry", "basil":"Pantry", "thyme":"Pantry"
 };
 const dictWords = Object.keys(catDict).map(w => w.charAt(0).toUpperCase() + w.slice(1));
 
 function getCat(name) {
     let lower = name.toLowerCase().trim();
-    return catDict[lower] || "Other";
+    // 1. Sprawdzamy dokładne dopasowanie
+    if(catDict[lower]) return catDict[lower];
+    // 2. Szukamy słów kluczowych (jeśli wpiszesz "Pecorino Romano", znajdzie "pecorino" i wrzuci do Dairy)
+    for(let key in catDict) {
+        if(lower.includes(key)) return catDict[key];
+    }
+    return "Other";
+}
+
+function learnWord(word) {
+    let w = word.trim().charAt(0).toUpperCase() + word.trim().slice(1).toLowerCase();
+    if(!db.customDict) db.customDict = [];
+    if(!db.customDict.includes(w)) {
+        db.customDict.push(w);
+    }
 }
 
 rdb.on('value', (s) => {
@@ -143,7 +157,7 @@ rdb.on('value', (s) => {
     if (data) { db = data; } 
     else {
         db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
-        db.pantry = []; db.dishes = []; db.checked = [];
+        db.pantry = []; db.dishes = []; db.checked = []; db.customDict = [];
     }
     loaded = true; renderAll();
 });
@@ -171,7 +185,7 @@ function renderAll() {
     
     // Planner
     let ph = '<div class="card-group">';
-    (db.plan || []).forEach((p, i) => ph += `<div class="card-row" onclick="pd(${i})"><b>${p.day}</b><span style="color:var(--accent)">${p.dish||'Plan...'}</span></div>`);
+    (db.plan || []).forEach((p, i) => ph += `<div class="card-row" onclick="pd(${i})"><b style="font-size:16px;">${p.day}</b><span style="color:var(--accent); font-size:16px;">${p.dish||'Plan...'}</span></div>`);
     document.getElementById('l-planner').innerHTML = ph + '</div>';
 
     // Recipes
@@ -179,11 +193,11 @@ function renderAll() {
         document.getElementById('l-recipes').innerHTML = '<div class="empty">No recipes yet. Click + Add.</div>';
     } else {
         let rh = '<div class="card-group">';
-        db.dishes.forEach(d => rh += `<div class="card-row" onclick="oe(${d.id})"><div><b style="font-size:17px;">${d.name}</b><div style="font-size:13px;color:var(--sec);margin-top:2px;">${d.ingredients.join(', ')}</div></div></div>`);
+        db.dishes.forEach(d => rh += `<div class="card-row" onclick="oe(${d.id})"><div><b style="font-size:16px;">${d.name}</b><div style="font-size:13px;color:var(--sec);margin-top:2px;">${d.ingredients.join(', ')}</div></div></div>`);
         document.getElementById('l-recipes').innerHTML = rh + '</div>';
     }
 
-    // Shop (z Kategoriami i Agregacją)
+    // Shop
     let agg = {};
     (db.plan || []).forEach(p => { 
         if(p.dish) { 
@@ -220,12 +234,13 @@ function renderAll() {
                     let countStr = i.count > 1 ? ` <span style="color:var(--accent); font-weight:700">(${i.count}x)</span>` : '';
                     let badge = inPantry ? `<span class="pantry-badge">IN PANTRY</span>` : '';
 
+                    // Mniejsza czcionka (15px) na liście zakupów
                     sh += `<div class="card-row" onclick="tc('${i.name.toLowerCase()}')">
-                        <div style="display:flex; align-items:center; gap:16px; flex:1;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
+                        <div style="display:flex; align-items:center; gap:14px; flex:1;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
                             <div>
-                                <div style="font-size:17px; font-weight:500; ${style}">${i.name}${countStr}${badge}</div>
-                                <div style="font-size:13px; color:var(--sec); margin-top:2px;">${i.dishes.join(', ')}</div>
+                                <div style="font-size:15px; font-weight:500; ${style}">${i.name}${countStr}${badge}</div>
+                                <div style="font-size:12px; color:var(--sec); margin-top:2px;">${i.dishes.join(', ')}</div>
                             </div>
                         </div>
                     </div>`;
@@ -236,7 +251,7 @@ function renderAll() {
         document.getElementById('l-shop').innerHTML = sh;
     }
 
-    // Pantry (z Kategoriami)
+    // Pantry
     if(!db.pantry || db.pantry.length === 0) {
         document.getElementById('l-pantry').innerHTML = '<div class="empty">Pantry is empty.</div>';
     } else {
@@ -247,8 +262,9 @@ function renderAll() {
                 pah += `<div class="card-header">${c}</div><div class="card-group">`;
                 catItems.forEach(p => {
                     let idx = db.pantry.indexOf(p);
+                    // Mniejsza czcionka (15px) w spiżarni
                     pah += `<div class="card-row">
-                        <span style="font-size:17px; font-weight:500;">${p.name}</span>
+                        <span style="font-size:15px; font-weight:500;">${p.name}</span>
                         <svg onclick="db.pantry.splice(${idx},1);save()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </div>`;
                 });
@@ -261,8 +277,8 @@ function renderAll() {
 
 function pd(i) {
     let h = '<div class="card-group">';
-    (db.dishes || []).forEach(d => h += `<div class="card-row" onclick="sd(${i},'${d.name}')">${d.name}</div>`);
-    om('Select Meal', h+'<div class="card-row" style="color:#ff453a" onclick="sd('+i+',null)">Clear Day</div></div>');
+    (db.dishes || []).forEach(d => h += `<div class="card-row" style="font-size:16px;" onclick="sd(${i},'${d.name}')">${d.name}</div>`);
+    om('Select Meal', h+'<div class="card-row" style="color:#ff453a; font-size:16px;" onclick="sd('+i+',null)">Clear Day</div></div>');
 }
 function sd(i,n) { db.plan[i].dish=n; save(); cm(); }
 
@@ -292,7 +308,7 @@ function ri() {
     box.style.display = 'block';
     box.innerHTML = cigs.map((n,i)=>`
         <div class="card-row">
-            <span style="font-size:17px;">${n}</span>
+            <span style="font-size:16px;">${n}</span>
             <svg onclick="cigs.splice(${i},1);ri()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </div>`).join(''); 
 }
@@ -301,7 +317,7 @@ function showSuggs() {
     const val = document.getElementById('ein').value.toLowerCase().trim();
     if(!val) { document.getElementById('rsuggs').innerHTML = ''; return; }
     
-    let all = [...new Set([...dictWords, ...(db.pantry||[]).map(p=>p.name), ...(db.dishes||[]).flatMap(d=>d.ingredients)])];
+    let all = [...new Set([...dictWords, ...(db.customDict||[])])];
     let matches = all.filter(i => i.toLowerCase().includes(val) && !cigs.some(c=>c.toLowerCase()===i.toLowerCase())).slice(0, 6);
     
     document.getElementById('rsuggs').innerHTML = matches.map(i => `<span class="tag" onclick="addSugg('${i}')">${i}</span>`).join('');
@@ -318,6 +334,7 @@ function ai() {
     const v=document.getElementById('ein').value.trim(); 
     if(v) {
         cigs.push(v.charAt(0).toUpperCase() + v.slice(1)); 
+        learnWord(v);
         document.getElementById('ein').value=''; 
         showSuggs(); ri();
     }
@@ -340,6 +357,7 @@ function addP() {
     if(v){ 
         if(!db.pantry) db.pantry=[]; 
         db.pantry.push({name: v.charAt(0).toUpperCase() + v.slice(1)}); 
+        learnWord(v);
         inp.value=''; 
         save();
     }
@@ -350,7 +368,7 @@ function renderC() {
     const v=document.getElementById('ci').value.toLowerCase(); if(!v) { document.getElementById('l-cook').innerHTML=''; return; }
     const m=(db.dishes || []).filter(d=>d.ingredients.some(i=>i.toLowerCase().includes(v)));
     let h='<div class="card-group">';
-    m.forEach(d=>h+=`<div class="card-row"><b>${d.name}</b></div>`);
+    m.forEach(d=>h+=`<div class="card-row"><b style="font-size:16px;">${d.name}</b></div>`);
     document.getElementById('l-cook').innerHTML=h+'</div>';
 }
 
