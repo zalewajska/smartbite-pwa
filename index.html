@@ -42,11 +42,16 @@
         .card-row:active { background: rgba(255,255,255,0.08); }
         
         .ios-input { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
-        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 14px; align-items: center; margin-bottom: 20px; border: 0.5px solid var(--border); }
+        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 14px; align-items: center; margin-bottom: 8px; border: 0.5px solid var(--border); }
         .search-bar input { flex: 1; border: none; background: transparent; color: #fff; font-size: 17px; padding: 10px 0; outline: none; }
         .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; }
-        .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; }
+        .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; margin-top: 15px;}
 
+        /* Podpowiedzi - Tagi */
+        .tag-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 12px; margin-bottom: 10px; scrollbar-width: none; }
+        .tag-scroll::-webkit-scrollbar { display: none; }
+        .tag { background: var(--card); border: 0.5px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+        
         nav { 
             position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
             background: var(--glass) !important; backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
@@ -57,15 +62,17 @@
         }
         .nav-item { flex: 1; text-align: center; color: var(--sec); font-size: 10px; font-weight: 600; border: none; background: none; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 4px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--card); width: 100%; max-height: 90vh; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s ease-out; }
+        .modal { background: var(--bg); width: 100%; max-height: 90vh; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
+        .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); background: var(--card); border-radius: 25px 25px 0 0;}
         .modal-body { padding: 20px; overflow-y: auto; padding-bottom: 60px; }
         .empty { text-align: center; padding: 60px 20px; color: var(--sec); font-size: 16px; }
+        
+        .trash-icon { width: 22px; height: 22px; color: #ff453a; display: block; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
@@ -77,7 +84,10 @@
     <main id="v-planner" class="view active"><div id="l-planner"></div></main>
     <main id="v-shop" class="view"><div id="l-shop"></div></main>
     <main id="v-pantry" class="view">
-        <div class="search-bar"><input type="text" id="pi" placeholder="Add to pantry..."><button class="btn-add" onclick="addP()">+</button></div>
+        <form class="search-bar" onsubmit="event.preventDefault(); addP();">
+            <input type="text" id="pi" placeholder="Add to pantry...">
+            <button type="submit" class="btn-add">+</button>
+        </form>
         <div id="l-pantry"></div>
     </main>
     <main id="v-recipes" class="view"><div id="l-recipes"></div></main>
@@ -97,7 +107,6 @@
     <div class="modal-overlay" id="mo"><div class="modal"><div class="modal-header"><span id="mt" style="font-weight:800; font-size:20px;"></span><span style="color:var(--accent); font-weight:600;" onclick="cm()">Close</span></div><div class="modal-body" id="mb"></div></div></div>
 
 <script>
-// STAŁA KONFIGURACJA BAZY DANYCH
 const firebaseConfig = { 
     apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow", 
     authDomain: "smartbite-67853.firebaseapp.com", 
@@ -106,25 +115,23 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-// TEN FOLDER ZOSTANIE JUŻ NA ZAWSZE - ZAPEWNIA TO BRAK UTRATY DANYCH
 const rdb = firebase.database().ref('smartbite_app'); 
 let db = { plan: [], pantry: [], dishes: [], checked: [] };
 let loaded = false;
 
-// Pobieranie danych na żywo
+// Słownik podstawowych składników
+const dict = ["Bacon", "Spaghetti", "Eggs", "Parmesan", "Garlic", "Onion", "Tomato", "Chicken", "Beef", "Pork", "Rice", "Flour", "Sugar", "Milk", "Butter", "Cheese", "Olive oil", "Salt", "Pepper", "Cream"];
+
 rdb.on('value', (s) => {
     const data = s.val();
-    if (data) {
-        db = data;
-    } else {
+    if (data) { db = data; } 
+    else {
         db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
         db.pantry = []; db.dishes = []; db.checked = [];
     }
-    loaded = true;
-    renderAll();
+    loaded = true; renderAll();
 });
 
-// Zapisywanie danych do chmury
 function save() { rdb.set(db); }
 
 function st(id, t) {
@@ -168,28 +175,79 @@ function renderAll() {
 
     // Pantry
     let pah = '<div class="card-group">';
-    (db.pantry || []).forEach((p,i) => pah += `<div class="card-row"><span>${p.name}</span><span style="color:red" onclick="db.pantry.splice(${i},1);save()">Del</span></div>`);
+    (db.pantry || []).forEach((p,i) => pah += `<div class="card-row"><span>${p.name}</span><svg onclick="db.pantry.splice(${i},1);save()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>`);
     document.getElementById('l-pantry').innerHTML = pah + '</div>';
 }
 
 function pd(i) {
     let h = '<div class="card-group">';
     (db.dishes || []).forEach(d => h += `<div class="card-row" onclick="sd(${i},'${d.name}')">${d.name}</div>`);
-    om('Select Meal', h+'<div class="card-row" style="color:red" onclick="sd('+i+',null)">Clear</div></div>');
+    om('Select Meal', h+'<div class="card-row" style="color:#ff453a" onclick="sd('+i+',null)">Clear Day</div></div>');
 }
 function sd(i,n) { db.plan[i].dish=n; save(); cm(); }
 
 let cid=null; let cigs=[];
+
+// Edytor Przepisów
 function oe(id=null) {
     cid=id; const d=(db.dishes || []).find(x => x.id === id); cigs=d?[...d.ingredients]:[];
-    let h = `<input type="text" id="en" class="ios-input" value="${d?d.name:''}" placeholder="Recipe Name"><div id="ei" class="card-group"></div>
-    <div class="search-bar"><input type="text" id="ein" placeholder="Ingredient..."><button class="btn-add" onclick="ai()">+</button></div>
+    let h = `
+    <input type="text" id="en" class="ios-input" value="${d?d.name:''}" placeholder="Recipe Name">
+    <div id="ei" class="card-group" style="margin-bottom: 10px;"></div>
+    
+    <form class="search-bar" onsubmit="event.preventDefault(); ai();">
+        <input type="text" id="ein" placeholder="Add ingredient..." oninput="showSuggs()">
+        <button type="submit" class="btn-add">+</button>
+    </form>
+    <div class="tag-scroll" id="rsuggs"></div>
+    
     <button class="btn-primary" onclick="sr()">Save Recipe</button>
-    ${id?`<button style="color:red;width:100%;background:none;border:none;margin-top:20px;" onclick="dr()">Delete</button>`:''}`;
-    om(id?'Edit':'New', h); ri();
+    ${id?`<button style="color:#ff453a; width:100%; background:none; border:none; margin-top:20px; font-weight:600; font-size:17px;" onclick="dr()">Delete Recipe</button>`:''}`;
+    
+    om(id?'Edit Recipe':'New Recipe', h); 
+    ri();
 }
-function ri() { document.getElementById('ei').innerHTML = cigs.map((n,i)=>`<div class="card-row"><span>${n}</span><span style="color:red" onclick="cigs.splice(${i},1);ri()">Del</span></div>`).join(''); }
-function ai() { const v=document.getElementById('ein').value.trim(); if(v){cigs.push(v); document.getElementById('ein').value=''; ri();}}
+
+// Funkcja do rysowania ikony kosza przy składnikach
+function ri() { 
+    const box = document.getElementById('ei');
+    if(cigs.length === 0) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    box.innerHTML = cigs.map((n,i)=>`
+        <div class="card-row">
+            <span>${n}</span>
+            <svg onclick="cigs.splice(${i},1);ri()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </div>`).join(''); 
+}
+
+// Podpowiedzi w edytorze przepisu
+function showSuggs() {
+    const val = document.getElementById('ein').value.toLowerCase().trim();
+    if(!val) { document.getElementById('rsuggs').innerHTML = ''; return; }
+    
+    let all = [...new Set([...dict, ...(db.pantry||[]).map(p=>p.name), ...(db.dishes||[]).flatMap(d=>d.ingredients)])];
+    let matches = all.filter(i => i.toLowerCase().includes(val) && !cigs.some(c=>c.toLowerCase()===i.toLowerCase())).slice(0, 6);
+    
+    document.getElementById('rsuggs').innerHTML = matches.map(i => `<span class="tag" onclick="addSugg('${i}')">${i}</span>`).join('');
+}
+
+function addSugg(val) {
+    cigs.push(val.charAt(0).toUpperCase() + val.slice(1));
+    document.getElementById('ein').value = '';
+    showSuggs(); ri();
+    document.getElementById('ein').focus(); // Utrzymanie klawiatury
+}
+
+function ai() { 
+    const v=document.getElementById('ein').value.trim(); 
+    if(v) {
+        cigs.push(v.charAt(0).toUpperCase() + v.slice(1)); 
+        document.getElementById('ein').value=''; 
+        showSuggs(); ri();
+    }
+    document.getElementById('ein').focus(); // Utrzymanie klawiatury po kliknięciu plusa
+}
+
 function sr() { 
     const n=document.getElementById('en').value.trim(); if(!n) return;
     if(!db.dishes) db.dishes = [];
@@ -197,8 +255,22 @@ function sr() {
     else db.dishes.push({id:Date.now(), name:n, ingredients:cigs}); 
     save(); cm(); 
 }
+
 function dr() { db.dishes=db.dishes.filter(x=>x.id!==cid); save(); cm(); }
-function addP() { const v=document.getElementById('pi').value.trim(); if(v){ if(!db.pantry) db.pantry=[]; db.pantry.push({name:v}); document.getElementById('pi').value=''; save();}}
+
+// Spiżarnia z klawiaturą
+function addP() { 
+    const inp = document.getElementById('pi');
+    const v = inp.value.trim(); 
+    if(v){ 
+        if(!db.pantry) db.pantry=[]; 
+        db.pantry.push({name: v.charAt(0).toUpperCase() + v.slice(1)}); 
+        inp.value=''; 
+        save();
+    }
+    inp.focus(); 
+}
+
 function renderC() {
     const v=document.getElementById('ci').value.toLowerCase(); if(!v) return;
     const m=(db.dishes || []).filter(d=>d.ingredients.some(i=>i.toLowerCase().includes(v)));
