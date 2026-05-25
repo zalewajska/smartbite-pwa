@@ -121,7 +121,7 @@ const rdb = firebase.database().ref('smartbite_app');
 let db = { plan: [], pantry: [], dishes: [], checked: [], customDict: [] };
 let loaded = false;
 
-// Rozbudowana Kategoryzacja (Z logicznym wyszukiwaniem słów kluczowych)
+// Kategoryzacja
 const allCategories = ["Bakery", "Dairy", "Drinks", "Household", "Meat & Fish", "Pantry", "Veg & Fruit", "Other"];
 const catDict = {
     "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy", "pecorino":"Dairy", "mozzarella":"Dairy", "feta":"Dairy",
@@ -135,27 +135,29 @@ const dictWords = Object.keys(catDict).map(w => w.charAt(0).toUpperCase() + w.sl
 
 function getCat(name) {
     let lower = name.toLowerCase().trim();
-    // 1. Sprawdzamy dokładne dopasowanie
     if(catDict[lower]) return catDict[lower];
-    // 2. Szukamy słów kluczowych (jeśli wpiszesz "Pecorino Romano", znajdzie "pecorino" i wrzuci do Dairy)
-    for(let key in catDict) {
-        if(lower.includes(key)) return catDict[key];
-    }
+    for(let key in catDict) { if(lower.includes(key)) return catDict[key]; }
     return "Other";
 }
 
 function learnWord(word) {
     let w = word.trim().charAt(0).toUpperCase() + word.trim().slice(1).toLowerCase();
     if(!db.customDict) db.customDict = [];
-    if(!db.customDict.includes(w)) {
-        db.customDict.push(w);
-    }
+    if(!db.customDict.includes(w)) db.customDict.push(w);
 }
 
 rdb.on('value', (s) => {
     const data = s.val();
-    if (data) { db = data; } 
-    else {
+    if (data) { 
+        db = data; 
+        // Wymuszenie pola isAvail dla starych danych z pantry
+        if(db.pantry) {
+            db.pantry = db.pantry.map(p => {
+                if(p.isAvail === undefined) p.isAvail = true;
+                return p;
+            });
+        }
+    } else {
         db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
         db.pantry = []; db.dishes = []; db.checked = []; db.customDict = [];
     }
@@ -197,8 +199,10 @@ function renderAll() {
         document.getElementById('l-recipes').innerHTML = rh + '</div>';
     }
 
-    // Shop
+    // Shop z Agregacją
     let agg = {};
+    
+    // 1. Z planu posiłków
     (db.plan || []).forEach(p => { 
         if(p.dish) { 
             const d = (db.dishes||[]).find(x=>x.name===p.dish); 
@@ -215,9 +219,19 @@ function renderAll() {
         }
     });
 
+    // 2. Dodanie braków ze spiżarni (isAvail === false)
+    (db.pantry || []).filter(p => !p.isAvail).forEach(p => {
+        let lower = p.name.toLowerCase();
+        if(agg[lower]) {
+            if(!agg[lower].dishes.includes("Pantry Fill")) agg[lower].dishes.push("Pantry Fill");
+        } else {
+            agg[lower] = { name: p.name, count: 1, dishes: ["Pantry Fill"], cat: getCat(p.name) };
+        }
+    });
+
     let items = Object.values(agg);
     if(items.length === 0) {
-        document.getElementById('l-shop').innerHTML = '<div class="empty">Shop list empty. Plan some meals.</div>';
+        document.getElementById('l-shop').innerHTML = '<div class="empty">Shop list empty. Plan some meals or mark pantry items as out of stock.</div>';
     } else {
         let sh = '';
         allCategories.forEach(c => {
@@ -225,17 +239,16 @@ function renderAll() {
             if(catItems.length > 0) {
                 sh += `<div class="card-header">${c}</div><div class="card-group">`;
                 catItems.forEach(i => {
-                    let inPantry = (db.pantry||[]).some(p => p.name.toLowerCase() === i.name.toLowerCase());
-                    let isChecked = (db.checked && db.checked.includes(i.name.toLowerCase())) || inPantry;
+                    let inPantry = (db.pantry||[]).find(p => p.name.toLowerCase() === i.name.toLowerCase());
+                    let isChecked = (db.checked && db.checked.includes(i.name.toLowerCase())) || (inPantry && inPantry.isAvail);
                     
                     let checkColor = isChecked ? 'var(--accent)' : 'var(--sec)';
                     let checkFill = isChecked ? 'var(--accent)' : 'none';
                     let style = isChecked ? 'text-decoration:line-through;color:var(--sec)' : '';
                     let countStr = i.count > 1 ? ` <span style="color:var(--accent); font-weight:700">(${i.count}x)</span>` : '';
-                    let badge = inPantry ? `<span class="pantry-badge">IN PANTRY</span>` : '';
+                    let badge = (inPantry && inPantry.isAvail) ? `<span class="pantry-badge">IN PANTRY</span>` : '';
 
-                    // Mniejsza czcionka (15px) na liście zakupów
-                    sh += `<div class="card-row" onclick="tc('${i.name.toLowerCase()}')">
+                    sh += `<div class="card-row" onclick="tc('${i.name.replace(/'/g, "\\'")}')">
                         <div style="display:flex; align-items:center; gap:14px; flex:1;">
                             <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
                             <div>
@@ -262,9 +275,15 @@ function renderAll() {
                 pah += `<div class="card-header">${c}</div><div class="card-group">`;
                 catItems.forEach(p => {
                     let idx = db.pantry.indexOf(p);
-                    // Mniejsza czcionka (15px) w spiżarni
+                    let checkColor = p.isAvail ? 'var(--accent)' : 'var(--sec)';
+                    let checkFill = p.isAvail ? 'var(--accent)' : 'none';
+                    let textStyle = p.isAvail ? '' : 'color:var(--sec); text-decoration:line-through;';
+                    
                     pah += `<div class="card-row">
-                        <span style="font-size:15px; font-weight:500;">${p.name}</span>
+                        <div style="display:flex; align-items:center; gap:14px; flex:1;" onclick="togglePantryItem(${idx})">
+                            <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${p.isAvail?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
+                            <span style="font-size:15px; font-weight:500; ${textStyle}">${p.name}</span>
+                        </div>
                         <svg onclick="db.pantry.splice(${idx},1);save()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </div>`;
                 });
@@ -273,6 +292,50 @@ function renderAll() {
         });
         document.getElementById('l-pantry').innerHTML = pah;
     }
+}
+
+// LOGIKA TWO-WAY SYNC
+function tc(itemName) { 
+    if(!db.checked) db.checked = []; 
+    let lower = itemName.toLowerCase();
+    let isNowChecked = false;
+
+    if(db.checked.includes(lower)) {
+        db.checked = db.checked.filter(x => x !== lower);
+        isNowChecked = false;
+    } else {
+        db.checked.push(lower);
+        isNowChecked = true;
+    }
+
+    // Sync ze Spiżarnią
+    if(!db.pantry) db.pantry = [];
+    let pItem = db.pantry.find(p => p.name.toLowerCase() === lower);
+    
+    if (pItem) {
+        // Jeśli jest w spiżarni, zaktualizuj status
+        pItem.isAvail = isNowChecked;
+    } else if (isNowChecked) {
+        // Jeśli kupiliśmy (odznaczyliśmy na liście), dodajemy do spiżarni
+        db.pantry.push({name: itemName.charAt(0).toUpperCase() + itemName.slice(1), isAvail: true});
+        learnWord(itemName);
+    }
+    
+    save(); 
+}
+
+function togglePantryItem(idx) {
+    let pItem = db.pantry[idx];
+    pItem.isAvail = !pItem.isAvail;
+    let lower = pItem.name.toLowerCase();
+
+    if(!db.checked) db.checked = [];
+    if (pItem.isAvail) {
+        if (!db.checked.includes(lower)) db.checked.push(lower);
+    } else {
+        db.checked = db.checked.filter(x => x !== lower);
+    }
+    save();
 }
 
 function pd(i) {
@@ -356,7 +419,7 @@ function addP() {
     const v = inp.value.trim(); 
     if(v){ 
         if(!db.pantry) db.pantry=[]; 
-        db.pantry.push({name: v.charAt(0).toUpperCase() + v.slice(1)}); 
+        db.pantry.push({name: v.charAt(0).toUpperCase() + v.slice(1), isAvail: true}); 
         learnWord(v);
         inp.value=''; 
         save();
@@ -370,13 +433,6 @@ function renderC() {
     let h='<div class="card-group">';
     m.forEach(d=>h+=`<div class="card-row"><b style="font-size:16px;">${d.name}</b></div>`);
     document.getElementById('l-cook').innerHTML=h+'</div>';
-}
-
-function tc(i) { 
-    if(!db.checked) db.checked = []; 
-    if(db.checked.includes(i)) db.checked=db.checked.filter(x=>x!==i); 
-    else db.checked.push(i); 
-    save(); 
 }
 </script>
 </body>
