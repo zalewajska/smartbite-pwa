@@ -5,57 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SmartBite</title>
+    <title>SmartBite Pro</title>
     <style>
         :root {
             --bg: #000000;
-            --card: #1c1c1e;
-            --input: #2c2c2e;
+            --card: rgba(28, 28, 30, 0.7);
+            --input: rgba(44, 44, 46, 0.8);
             --text: #ffffff;
             --sec: #8e8e93;
             --accent: #ebd9cc;
-            --border: rgba(255, 255, 255, 0.12);
-            --glass: rgba(25, 25, 25, 0.85);
+            --accent-dark: #c75933;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(20, 20, 20, 0.7);
         }
-        * { box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             margin: 0; padding: 0; background: var(--bg); color: var(--text); 
             padding-top: env(safe-area-inset-top);
             padding-bottom: calc(100px + env(safe-area-inset-bottom));
             min-height: 100vh;
+            /* Efekt głębi pod szkło */
+            background-image: radial-gradient(circle at 0% 0%, rgba(199, 89, 51, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 100% 100%, rgba(235, 217, 204, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
         }
+
+        /* NAGŁÓWEK - LIQUID GLASS */
         header { 
             position: sticky; top: 0; background: var(--glass); 
-            backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%);
+            backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
             padding: 12px 20px 16px; display: flex; justify-content: space-between; align-items: center; 
             z-index: 1000; border-bottom: 0.5px solid var(--border);
         }
-        h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.8px; }
+        h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.8px; }
         .header-btn { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer; }
-        
-        .view { display: none; padding: 20px; }
-        .view.active { display: block; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .card-group { background: var(--card); border-radius: 14px; margin-bottom: 25px; overflow: hidden; border: 0.5px solid var(--border); }
-        .card-header { padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--sec); text-transform: uppercase; letter-spacing: 1px;}
+        .view { display: none; padding: 16px 20px; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* KARTY I LISTY */
+        .card-group { background: var(--card); border-radius: 14px; margin-bottom: 25px; overflow: hidden; border: 0.5px solid var(--border); backdrop-filter: blur(10px); }
+        .card-header { padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--sec); text-transform: uppercase; letter-spacing: 0.5px; }
         .card-row { padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .card-row:last-child { border-bottom: none; }
-        .card-row:active { background: rgba(255,255,255,0.08); }
-        
-        .ios-input { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 15px; outline: none; }
-        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 5px 15px; border-radius: 14px; align-items: center; margin-bottom: 8px; border: 0.5px solid var(--border); }
-        .search-bar input { flex: 1; border: none; background: transparent; color: #fff; font-size: 17px; padding: 10px 0; outline: none; }
-        .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; }
-        .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; margin-top: 15px;}
+        .card-row:active { background: rgba(255,255,255,0.05); }
 
-        .tag-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 12px; margin-bottom: 10px; scrollbar-width: none; }
-        .tag-scroll::-webkit-scrollbar { display: none; }
-        .tag { background: var(--card); border: 0.5px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 15px; font-weight: 500; white-space: nowrap; cursor: pointer; }
-        
+        /* TEKST I CZCIONKI */
+        .text-main { font-size: 15px; font-weight: 500; }
+        .text-sub { font-size: 12px; color: var(--sec); margin-top: 2px; }
+        .pantry-badge { font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--sec); margin-left: 6px; vertical-align: middle; }
+
+        /* FORMULARZE */
+        .ios-input { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--input); color: #fff; font-size: 17px; margin-bottom: 12px; outline: none; }
+        .search-bar { display: flex; gap: 10px; background: var(--input); padding: 4px 12px; border-radius: 12px; align-items: center; margin-bottom: 12px; border: 0.5px solid var(--border); }
+        .search-bar input { flex: 1; border: none; background: transparent; color: #fff; font-size: 17px; padding: 10px 0; outline: none; }
+        .btn-add { color: var(--accent); background: none; border: none; font-size: 28px; padding: 0 5px; }
+
+        /* TAGI / PODPOWIEDZI */
+        .tag-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 10px; margin-bottom: 10px; scrollbar-width: none; }
+        .tag { background: var(--input); border: 0.5px solid var(--border); color: var(--text); padding: 7px 14px; border-radius: 20px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+
+        /* PRZYCISKI */
+        .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 17px; margin-top: 10px; }
+        .btn-danger { color: #ff453a; font-weight: 600; font-size: 17px; background: none; border: none; width: 100%; margin-top: 15px; }
+
+        /* NAV MENU - FIXED BOTTOM */
         nav { 
             position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
-            background: var(--glass) !important; backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%);
+            background: var(--glass) !important; backdrop-filter: blur(35px) saturate(200%); -webkit-backdrop-filter: blur(35px) saturate(200%);
             border-top: 0.5px solid var(--border);
             display: flex; justify-content: space-around;
             padding-bottom: env(safe-area-inset-bottom);
@@ -63,376 +83,275 @@
         }
         .nav-item { flex: 1; text-align: center; color: var(--sec); font-size: 10px; font-weight: 600; border: none; background: none; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 4px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-icon { width: 24px; height: 24px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: flex-end; }
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--bg); width: 100%; max-height: 90vh; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s ease-out; }
+        .modal { background: #1c1c1e; width: 100%; max-height: 92vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); background: var(--card); border-radius: 25px 25px 0 0;}
-        .modal-body { padding: 20px; overflow-y: auto; padding-bottom: 60px; }
-        .empty { text-align: center; padding: 60px 20px; color: var(--sec); font-size: 16px; }
+        .modal-header { padding: 18px 20px; display: flex; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
+        .modal-body { padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 80px; }
         
-        .trash-icon { width: 22px; height: 22px; color: #ff453a; display: block; }
-        .pantry-badge { font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 5px; background: rgba(255,255,255,0.1); color: var(--sec); margin-left: 8px; vertical-align: middle; }
+        .trash { color: #ff453a; width: 20px; height: 20px; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
-    <header><h1 id="vt">Planner</h1><button class="header-btn" id="ha"></button></header>
+    <header><h1 id="view-title">Planner</h1><button class="header-btn" id="header-action"></button></header>
 
-    <main id="v-planner" class="view active"><div id="l-planner"></div></main>
-    <main id="v-shop" class="view"><div id="l-shop"></div></main>
+    <main id="v-planner" class="view active"><div id="list-planner"></div></main>
+    <main id="v-shop" class="view"><div id="list-shop"></div></main>
     <main id="v-pantry" class="view">
-        <form class="search-bar" onsubmit="event.preventDefault(); addP();">
-            <input type="text" id="pi" placeholder="Add to pantry...">
+        <form class="search-bar" onsubmit="event.preventDefault(); addItemPantry();">
+            <input type="text" id="pantry-input" placeholder="Add ingredient...">
             <button type="submit" class="btn-add">+</button>
         </form>
-        <div id="l-pantry"></div>
+        <div id="list-pantry"></div>
     </main>
-    <main id="v-recipes" class="view"><div id="l-recipes"></div></main>
+    <main id="v-recipes" class="view"><div id="list-recipes"></div></main>
     <main id="v-cook" class="view">
-        <div class="search-bar"><input type="text" id="ci" placeholder="What's in the fridge?" oninput="renderC()"></div>
-        <div id="l-cook"></div>
+        <div class="search-bar"><input type="text" id="cook-search" placeholder="What's in the fridge?" oninput="renderCook()"></div>
+        <div id="list-cook"></div>
     </main>
 
     <nav>
-        <button class="nav-item active" onclick="st('planner','Planner')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Planner</button>
-        <button class="nav-item" onclick="st('shop','Shop')"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Shop</button>
-        <button class="nav-item" onclick="st('pantry','Pantry')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Pantry</button>
-        <button class="nav-item" onclick="st('recipes','Recipes')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Recipes</button>
-        <button class="nav-item" onclick="st('cook','Cook Now')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>Cook</button>
+        <button class="nav-item active" onclick="switchTab('planner','Planner')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Planner</button>
+        <button class="nav-item" onclick="switchTab('shop','Shop')"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Shop</button>
+        <button class="nav-item" onclick="switchTab('pantry','Pantry')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Pantry</button>
+        <button class="nav-item" onclick="switchTab('recipes','Recipes')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Recipes</button>
+        <button class="nav-item" onclick="switchTab('cook','Cook Now')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>Cook</button>
     </nav>
 
-    <div class="modal-overlay" id="mo"><div class="modal"><div class="modal-header"><span id="mt" style="font-weight:800; font-size:20px;"></span><span style="color:var(--accent); font-weight:600;" onclick="cm()">Close</span></div><div class="modal-body" id="mb"></div></div></div>
+    <div class="modal-overlay" id="mo"><div class="modal"><div class="modal-header"><span id="mt" style="font-weight:800; font-size:20px;"></span><span style="color:var(--accent); font-weight:600;" onclick="closeModal()">Close</span></div><div class="modal-body" id="mb"></div></div></div>
 
 <script>
-const firebaseConfig = { 
-    apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow", 
-    authDomain: "smartbite-67853.firebaseapp.com", 
-    projectId: "smartbite-67853", 
-    databaseURL: "https://smartbite-67853-default-rtdb.firebaseio.com" 
-};
-
+// --- CONFIG & DB ---
+const firebaseConfig = { apiKey: "AIzaSyAiaSwfhzy5PpfC_POwlhgBwpYyiyWA2Ow", authDomain: "smartbite-67853.firebaseapp.com", projectId: "smartbite-67853", databaseURL: "https://smartbite-67853-default-rtdb.firebaseio.com" };
 firebase.initializeApp(firebaseConfig);
-const rdb = firebase.database().ref('smartbite_app'); 
+const rdb = firebase.database().ref('smartbite_app');
 let db = { plan: [], pantry: [], dishes: [], checked: [], customDict: [] };
-let loaded = false;
 
-// Kategoryzacja
-const allCategories = ["Bakery", "Dairy", "Drinks", "Household", "Meat & Fish", "Pantry", "Veg & Fruit", "Other"];
+// --- FULL CATEGORY DICTIONARY ---
+const allCategories = ["Meat & Fish", "Veg & Fruit", "Dairy", "Bakery", "Pantry", "Drinks", "Household", "Other"];
 const catDict = {
-    "milk":"Dairy", "cheese":"Dairy", "butter":"Dairy", "yogurt":"Dairy", "cream":"Dairy", "egg":"Dairy", "eggs":"Dairy", "parmesan":"Dairy", "pecorino":"Dairy", "mozzarella":"Dairy", "feta":"Dairy",
-    "water":"Drinks", "juice":"Drinks", "coffee":"Drinks", "tea":"Drinks", "wine":"Drinks", "beer":"Drinks",
-    "chicken":"Meat & Fish", "beef":"Meat & Fish", "pork":"Meat & Fish", "fish":"Meat & Fish", "salmon":"Meat & Fish", "bacon":"Meat & Fish", "mince":"Meat & Fish", "sausage":"Meat & Fish", "ham":"Meat & Fish",
-    "apple":"Veg & Fruit", "banana":"Veg & Fruit", "tomato":"Veg & Fruit", "onion":"Veg & Fruit", "garlic":"Veg & Fruit", "potato":"Veg & Fruit", "leek":"Veg & Fruit", "carrot":"Veg & Fruit", "celery":"Veg & Fruit", "lovage":"Veg & Fruit", "parsley":"Veg & Fruit", "lemon":"Veg & Fruit", "lime":"Veg & Fruit", "pepper":"Veg & Fruit", "broccoli":"Veg & Fruit", "spinach":"Veg & Fruit", "cabbage":"Veg & Fruit", "mushroom":"Veg & Fruit",
-    "bread":"Bakery", "roll":"Bakery", "tortilla":"Bakery", "pasta":"Pantry", "spaghetti":"Pantry", "noodle":"Pantry",
-    "flour":"Pantry", "sugar":"Pantry", "salt":"Pantry", "oil":"Pantry", "rice":"Pantry", "passata":"Pantry", "ketchup":"Pantry", "mayo":"Pantry", "mustard":"Pantry", "vinegar":"Pantry", "soy sauce":"Pantry", "spice":"Pantry", "paprika":"Pantry", "oregano":"Pantry", "basil":"Pantry", "thyme":"Pantry"
+    "chicken":"Meat & Fish","beef":"Meat & Fish","pork":"Meat & Fish","mince":"Meat & Fish","bacon":"Meat & Fish","salmon":"Meat & Fish","fish":"Meat & Fish","sausage":"Meat & Fish","ham":"Meat & Fish",
+    "tomato":"Veg & Fruit","onion":"Veg & Fruit","garlic":"Veg & Fruit","carrot":"Veg & Fruit","potato":"Veg & Fruit","leek":"Veg & Fruit","celery":"Veg & Fruit","lovage":"Veg & Fruit","parsley":"Veg & Fruit","pepper":"Veg & Fruit","broccoli":"Veg & Fruit","lemon":"Veg & Fruit","mushroom":"Veg & Fruit",
+    "milk":"Dairy","cheese":"Dairy","egg":"Dairy","parmesan":"Dairy","pecorino":"Dairy","mozzarella":"Dairy","butter":"Dairy","yogurt":"Dairy","cream":"Dairy","feta":"Dairy",
+    "bread":"Bakery","roll":"Bakery","tortilla":"Bakery","baguette":"Bakery",
+    "pasta":"Pantry","spaghetti":"Pantry","rice":"Pantry","flour":"Pantry","sugar":"Pantry","oil":"Pantry","salt":"Pantry","pepper":"Pantry","spice":"Pantry","sauce":"Pantry","passata":"Pantry",
+    "water":"Drinks","juice":"Drinks","coffee":"Drinks","tea":"Drinks","wine":"Drinks","beer":"Drinks",
+    "soap":"Household","paper":"Household","bag":"Household"
 };
-const dictWords = Object.keys(catDict).map(w => w.charAt(0).toUpperCase() + w.slice(1));
 
 function getCat(name) {
-    let lower = name.toLowerCase().trim();
-    if(catDict[lower]) return catDict[lower];
-    for(let key in catDict) { if(lower.includes(key)) return catDict[key]; }
+    let l = name.toLowerCase().trim();
+    if(catDict[l]) return catDict[l];
+    for(let k in catDict) { if(l.includes(k)) return catDict[k]; }
     return "Other";
 }
 
-function learnWord(word) {
-    let w = word.trim().charAt(0).toUpperCase() + word.trim().slice(1).toLowerCase();
-    if(!db.customDict) db.customDict = [];
-    if(!db.customDict.includes(w)) db.customDict.push(w);
-}
-
+// --- CORE LOGIC ---
 rdb.on('value', (s) => {
     const data = s.val();
     if (data) { 
         db = data; 
-        // Wymuszenie pola isAvail dla starych danych z pantry
-        if(db.pantry) {
-            db.pantry = db.pantry.map(p => {
-                if(p.isAvail === undefined) p.isAvail = true;
-                return p;
-            });
-        }
+        if(!db.plan) db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
     } else {
         db.plan = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>({day:d,dish:null}));
         db.pantry = []; db.dishes = []; db.checked = []; db.customDict = [];
     }
-    loaded = true; renderAll();
+    renderAll();
 });
 
 function save() { rdb.set(db); }
 
-function st(id, t) {
+function switchTab(id, t) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('v-'+id).classList.add('active');
     event.currentTarget.classList.add('active');
-    document.getElementById('vt').innerText = t;
-    const b = document.getElementById('ha');
+    document.getElementById('view-title').innerText = t;
+    const b = document.getElementById('header-action');
     b.style.display = (id==='shop'||id==='recipes')?'block':'none';
-    if(id==='shop'){ b.innerText='Clear'; b.onclick=()=>{db.checked=[];save();}; }
-    if(id==='recipes'){ b.innerText='+ Add'; b.onclick=()=>oe(); }
+    if(id==='shop'){ b.innerText='Clear Done'; b.onclick=()=>{db.checked=[];save();}; }
+    if(id==='recipes'){ b.innerText='+ Add'; b.onclick=()=>openEditRecipe(); }
     renderAll();
 }
 
-function om(t, h) { document.getElementById('mt').innerText=t; document.getElementById('mb').innerHTML=h; document.getElementById('mo').classList.add('active'); }
-function cm() { document.getElementById('mo').classList.remove('active'); }
+function openModal(t, h) { document.getElementById('mt').innerText=t; document.getElementById('mb').innerHTML=h; document.getElementById('mo').classList.add('active'); }
+function closeModal() { document.getElementById('mo').classList.remove('active'); }
 
 function renderAll() {
-    if(!loaded) return;
-    
-    // Planner
-    let ph = '<div class="card-group">';
-    (db.plan || []).forEach((p, i) => ph += `<div class="card-row" onclick="pd(${i})"><b style="font-size:16px;">${p.day}</b><span style="color:var(--accent); font-size:16px;">${p.dish||'Plan...'}</span></div>`);
-    document.getElementById('l-planner').innerHTML = ph + '</div>';
+    renderPlanner();
+    renderShop();
+    renderPantry();
+    renderRecipes();
+}
 
-    // Recipes
-    if(!db.dishes || !db.dishes.length) {
-        document.getElementById('l-recipes').innerHTML = '<div class="empty">No recipes yet. Click + Add.</div>';
-    } else {
-        let rh = '<div class="card-group">';
-        db.dishes.forEach(d => rh += `<div class="card-row" onclick="oe(${d.id})"><div><b style="font-size:16px;">${d.name}</b><div style="font-size:13px;color:var(--sec);margin-top:2px;">${d.ingredients.join(', ')}</div></div></div>`);
-        document.getElementById('l-recipes').innerHTML = rh + '</div>';
-    }
+// --- PLANNER ---
+function renderPlanner() {
+    let h = '<div class="card-group">';
+    db.plan.forEach((p, i) => h += `<div class="card-row" onclick="pickDish(${i})"><b class="text-main">${p.day}</b><span style="color:var(--accent); font-weight:600;">${p.dish||'Plan meal...'}</span></div>`);
+    document.getElementById('list-planner').innerHTML = h+'</div>';
+}
+function pickDish(i) {
+    let h = '<div class="card-group">';
+    db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => h += `<div class="card-row" onclick="setDish(${i},'${d.name}')">${d.name}</div>`);
+    openModal('Select for ' + db.plan[i].day, h+'<div class="card-row" style="color:#ff453a" onclick="setDish('+i+',null)">Clear Day</div></div>');
+}
+function setDish(i,n) { db.plan[i].dish=n; save(); closeModal(); }
 
-    // Shop z Agregacją
+// --- SHOP (The "Swift" Logic) ---
+function renderShop() {
     let agg = {};
-    
     // 1. Z planu posiłków
-    (db.plan || []).forEach(p => { 
-        if(p.dish) { 
-            const d = (db.dishes||[]).find(x=>x.name===p.dish); 
-            if(d) d.ingredients.forEach(i => {
-                let clean = i.trim();
-                let lower = clean.toLowerCase();
-                if(agg[lower]) {
-                    agg[lower].count++;
-                    if(!agg[lower].dishes.includes(p.dish)) agg[lower].dishes.push(p.dish);
-                } else {
-                    agg[lower] = { name: clean, count: 1, dishes: [p.dish], cat: getCat(clean) };
-                }
-            });
-        }
-    });
-
-    // 2. Dodanie braków ze spiżarni (isAvail === false)
-    (db.pantry || []).filter(p => !p.isAvail).forEach(p => {
-        let lower = p.name.toLowerCase();
-        if(agg[lower]) {
-            if(!agg[lower].dishes.includes("Pantry Fill")) agg[lower].dishes.push("Pantry Fill");
-        } else {
-            agg[lower] = { name: p.name, count: 1, dishes: ["Pantry Fill"], cat: getCat(p.name) };
-        }
+    db.plan.forEach(p => { if(p.dish){ const d=db.dishes.find(x=>x.name===p.dish); if(d) d.ingredients.forEach(i=>{
+        let l = i.trim().toLowerCase();
+        if(agg[l]) { agg[l].count++; if(!agg[l].dishes.includes(p.dish)) agg[l].dishes.push(p.dish); }
+        else agg[l] = { name: i.trim(), count: 1, dishes: [p.dish], cat: getCat(i) };
+    })}});
+    // 2. Ze spiżarni (jeśli isAvail === false)
+    (db.pantry||[]).filter(p => !p.isAvail).forEach(p => {
+        let l = p.name.toLowerCase();
+        if(agg[l]) { if(!agg[l].dishes.includes("Pantry")) agg[l].dishes.push("Pantry"); }
+        else agg[l] = { name: p.name, count: 1, dishes: ["Pantry"], cat: getCat(p.name) };
     });
 
     let items = Object.values(agg);
-    if(items.length === 0) {
-        document.getElementById('l-shop').innerHTML = '<div class="empty">Shop list empty. Plan some meals or mark pantry items as out of stock.</div>';
-    } else {
-        let sh = '';
-        allCategories.forEach(c => {
-            let catItems = items.filter(i => i.cat === c);
-            if(catItems.length > 0) {
-                sh += `<div class="card-header">${c}</div><div class="card-group">`;
-                catItems.forEach(i => {
-                    let inPantry = (db.pantry||[]).find(p => p.name.toLowerCase() === i.name.toLowerCase());
-                    let isChecked = (db.checked && db.checked.includes(i.name.toLowerCase())) || (inPantry && inPantry.isAvail);
-                    
-                    let checkColor = isChecked ? 'var(--accent)' : 'var(--sec)';
-                    let checkFill = isChecked ? 'var(--accent)' : 'none';
-                    let style = isChecked ? 'text-decoration:line-through;color:var(--sec)' : '';
-                    let countStr = i.count > 1 ? ` <span style="color:var(--accent); font-weight:700">(${i.count}x)</span>` : '';
-                    let badge = (inPantry && inPantry.isAvail) ? `<span class="pantry-badge">IN PANTRY</span>` : '';
+    if(!items.length) { document.getElementById('list-shop').innerHTML = '<div class="empty">Everything in stock!</div>'; return; }
 
-                    sh += `<div class="card-row" onclick="tc('${i.name.replace(/'/g, "\\'")}')">
-                        <div style="display:flex; align-items:center; gap:14px; flex:1;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
-                            <div>
-                                <div style="font-size:15px; font-weight:500; ${style}">${i.name}${countStr}${badge}</div>
-                                <div style="font-size:12px; color:var(--sec); margin-top:2px;">${i.dishes.join(', ')}</div>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-                sh += `</div>`;
-            }
-        });
-        document.getElementById('l-shop').innerHTML = sh;
-    }
-
-    // Pantry
-    if(!db.pantry || db.pantry.length === 0) {
-        document.getElementById('l-pantry').innerHTML = '<div class="empty">Pantry is empty.</div>';
-    } else {
-        let pah = '';
-        allCategories.forEach(c => {
-            let catItems = db.pantry.filter(p => getCat(p.name) === c);
-            if(catItems.length > 0) {
-                pah += `<div class="card-header">${c}</div><div class="card-group">`;
-                catItems.forEach(p => {
-                    let idx = db.pantry.indexOf(p);
-                    let checkColor = p.isAvail ? 'var(--accent)' : 'var(--sec)';
-                    let checkFill = p.isAvail ? 'var(--accent)' : 'none';
-                    let textStyle = p.isAvail ? '' : 'color:var(--sec); text-decoration:line-through;';
-                    
-                    pah += `<div class="card-row">
-                        <div style="display:flex; align-items:center; gap:14px; flex:1;" onclick="togglePantryItem(${idx})">
-                            <svg width="22" height="22" viewBox="0 0 24 24" style="stroke:${checkColor}; fill:${checkFill}; stroke-width:2;"><circle cx="12" cy="12" r="10"></circle>${p.isAvail?'<path d="M8 12l3 3 5-6" stroke="#000" fill="none"></path>':''}</svg>
-                            <span style="font-size:15px; font-weight:500; ${textStyle}">${p.name}</span>
-                        </div>
-                        <svg onclick="db.pantry.splice(${idx},1);save()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </div>`;
-                });
-                pah += `</div>`;
-            }
-        });
-        document.getElementById('l-pantry').innerHTML = pah;
-    }
+    let sh = '';
+    allCategories.forEach(c => {
+        let catItems = items.filter(i => i.cat === c);
+        if(catItems.length) {
+            sh += `<div class="card-header">${c}</div><div class="card-group">`;
+            catItems.forEach(i => {
+                let pItem = (db.pantry||[]).find(px => px.name.toLowerCase() === i.name.toLowerCase());
+                let isChecked = (db.checked||[]).includes(i.name.toLowerCase()) || (pItem && pItem.isAvail);
+                let color = isChecked ? 'var(--accent)' : 'var(--sec)';
+                let style = isChecked ? 'text-decoration:line-through; color:var(--sec);' : '';
+                sh += `<div class="card-row" onclick="toggleShopItem('${i.name.toLowerCase()}')">
+                    <div style="display:flex; align-items:center; gap:12px; flex:1;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="${isChecked?'var(--accent)':'none'}" stroke="${color}" stroke-width="2"><circle cx="12" cy="12" r="10"></circle>${isChecked?'<path d="M8 12l3 3 5-6" stroke="#000"></path>':''}</svg>
+                        <div><div class="text-main" style="${style}">${i.name} ${i.count>1?`<b>(${i.count}x)</b>`:''} ${(pItem && pItem.isAvail)?'<span class="pantry-badge">IN PANTRY</span>':''}</div><div class="text-sub">${i.dishes.join(', ')}</div></div>
+                    </div>
+                </div>`;
+            });
+            sh += '</div>';
+        }
+    });
+    document.getElementById('list-shop').innerHTML = sh;
 }
 
-// LOGIKA TWO-WAY SYNC
-function tc(itemName) { 
-    if(!db.checked) db.checked = []; 
-    let lower = itemName.toLowerCase();
-    let isNowChecked = false;
-
-    if(db.checked.includes(lower)) {
-        db.checked = db.checked.filter(x => x !== lower);
-        isNowChecked = false;
-    } else {
-        db.checked.push(lower);
-        isNowChecked = true;
-    }
-
-    // Sync ze Spiżarnią
-    if(!db.pantry) db.pantry = [];
-    let pItem = db.pantry.find(p => p.name.toLowerCase() === lower);
-    
-    if (pItem) {
-        // Jeśli jest w spiżarni, zaktualizuj status
-        pItem.isAvail = isNowChecked;
-    } else if (isNowChecked) {
-        // Jeśli kupiliśmy (odznaczyliśmy na liście), dodajemy do spiżarni
-        db.pantry.push({name: itemName.charAt(0).toUpperCase() + itemName.slice(1), isAvail: true});
-        learnWord(itemName);
-    }
-    
-    save(); 
-}
-
-function togglePantryItem(idx) {
-    let pItem = db.pantry[idx];
-    pItem.isAvail = !pItem.isAvail;
-    let lower = pItem.name.toLowerCase();
-
+function toggleShopItem(name) {
     if(!db.checked) db.checked = [];
-    if (pItem.isAvail) {
-        if (!db.checked.includes(lower)) db.checked.push(lower);
-    } else {
-        db.checked = db.checked.filter(x => x !== lower);
-    }
+    let isChecked = false;
+    if(db.checked.includes(name)) db.checked = db.checked.filter(x=>x!==name);
+    else { db.checked.push(name); isChecked = true; }
+    
+    // TWO-WAY SYNC: Jeśli kupione, oznacz w spiżarni jako dostępne
+    let pItem = (db.pantry||[]).find(p=>p.name.toLowerCase() === name);
+    if(pItem) pItem.isAvail = isChecked;
+    else if(isChecked) { if(!db.pantry) db.pantry=[]; db.pantry.push({name: name.charAt(0).toUpperCase()+name.slice(1), isAvail: true}); }
+    
     save();
 }
 
-function pd(i) {
+// --- PANTRY ---
+function renderPantry() {
+    if(!db.pantry || !db.pantry.length) { document.getElementById('list-pantry').innerHTML = '<div class="empty">Pantry is empty.</div>'; return; }
+    let h = '';
+    allCategories.forEach(c => {
+        let catItems = db.pantry.filter(p => getCat(p.name) === c);
+        if(catItems.length) {
+            h += `<div class="card-header">${c}</div><div class="card-group">`;
+            catItems.forEach(p => {
+                let color = p.isAvail ? 'var(--accent)' : 'var(--sec)';
+                let style = p.isAvail ? '' : 'text-decoration:line-through; color:var(--sec);';
+                h += `<div class="card-row">
+                    <div style="display:flex; align-items:center; gap:12px; flex:1;" onclick="togglePantryItem('${p.name}')">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="${p.isAvail?'var(--accent)':'none'}" stroke="${color}" stroke-width="2"><circle cx="12" cy="12" r="10"></circle>${p.isAvail?'<path d="M8 12l3 3 5-6" stroke="#000"></path>':''}</svg>
+                        <span class="text-main" style="${style}">${p.name}</span>
+                    </div>
+                    <svg onclick="deletePantry('${p.name}')" class="trash" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>`;
+            });
+            h += '</div>';
+        }
+    });
+    document.getElementById('list-pantry').innerHTML = h;
+}
+function togglePantryItem(name) {
+    let p = db.pantry.find(x=>x.name===name);
+    p.isAvail = !p.isAvail;
+    // Sync do listy zakupów: jeśli zaznaczamy że NIE MA, usuwamy z "checked", żeby wskoczyło na listę
+    if(!p.isAvail) { db.checked = (db.checked||[]).filter(x=>x!==name.toLowerCase()); }
+    save();
+}
+function addItemPantry() {
+    const v = document.getElementById('pantry-input').value.trim();
+    if(v) { if(!db.pantry) db.pantry=[]; db.pantry.push({name: v.charAt(0).toUpperCase()+v.slice(1), isAvail: true}); learn(v); document.getElementById('pantry-input').value=''; save(); }
+}
+function deletePantry(name) { db.pantry = db.pantry.filter(x=>x.name!==name); save(); }
+
+// --- RECIPES ---
+function renderRecipes() {
+    if(!db.dishes || !db.dishes.length) { document.getElementById('list-recipes').innerHTML = '<div class="empty">No recipes. Click + Add.</div>'; return; }
     let h = '<div class="card-group">';
-    (db.dishes || []).forEach(d => h += `<div class="card-row" style="font-size:16px;" onclick="sd(${i},'${d.name}')">${d.name}</div>`);
-    om('Select Meal', h+'<div class="card-row" style="color:#ff453a; font-size:16px;" onclick="sd('+i+',null)">Clear Day</div></div>');
-}
-function sd(i,n) { db.plan[i].dish=n; save(); cm(); }
-
-let cid=null; let cigs=[];
-function oe(id=null) {
-    cid=id; const d=(db.dishes || []).find(x => x.id === id); cigs=d?[...d.ingredients]:[];
-    let h = `
-    <input type="text" id="en" class="ios-input" value="${d?d.name:''}" placeholder="Recipe Name">
-    <div id="ei" class="card-group" style="margin-bottom: 10px;"></div>
-    
-    <form class="search-bar" onsubmit="event.preventDefault(); ai();">
-        <input type="text" id="ein" placeholder="Add ingredient..." oninput="showSuggs()" autocomplete="off">
-        <button type="submit" class="btn-add">+</button>
-    </form>
-    <div class="tag-scroll" id="rsuggs"></div>
-    
-    <button class="btn-primary" onclick="sr()">Save Recipe</button>
-    ${id?`<button style="color:#ff453a; width:100%; background:none; border:none; margin-top:20px; font-weight:600; font-size:17px;" onclick="dr()">Delete Recipe</button>`:''}`;
-    
-    om(id?'Edit Recipe':'New Recipe', h); 
-    ri();
+    db.dishes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => h += `<div class="card-row" onclick="openEditRecipe(${d.id})"><div><b class="text-main">${d.name}</b><div class="text-sub">${d.ingredients.join(', ')}</div></div></div>`);
+    document.getElementById('list-recipes').innerHTML = h+'</div>';
 }
 
-function ri() { 
-    const box = document.getElementById('ei');
-    if(cigs.length === 0) { box.style.display = 'none'; return; }
-    box.style.display = 'block';
-    box.innerHTML = cigs.map((n,i)=>`
-        <div class="card-row">
-            <span style="font-size:16px;">${n}</span>
-            <svg onclick="cigs.splice(${i},1);ri()" class="trash-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-        </div>`).join(''); 
+let curId = null; let curIngs = [];
+function openEditRecipe(id = null) {
+    curId = id; const d = db.dishes.find(x => x.id === id); curIngs = d ? [...d.ingredients] : [];
+    let h = `<input type="text" id="rn" class="ios-input" value="${d?d.name:''}" placeholder="Recipe Name">
+    <div id="ri" class="card-group" style="margin-bottom:10px; display:${curIngs.length?'block':'none'}"></div>
+    <form class="search-bar" onsubmit="event.preventDefault(); addRI();"><input type="text" id="rin" placeholder="Add ingredient..." oninput="showSuggs()" autocomplete="off"><button type="submit" class="btn-add">+</button></form>
+    <div class="tag-scroll" id="rs"></div>
+    <button class="btn-primary" onclick="saveR()">Save Recipe</button>
+    ${id?`<button class="btn-danger" onclick="delR()">Delete Recipe</button>`:''}`;
+    openModal(id?'Edit Recipe':'New Recipe', h); renderRI();
 }
-
+function renderRI() { 
+    const box = document.getElementById('ri');
+    if(!curIngs.length) { box.style.display='none'; return; }
+    box.style.display='block';
+    box.innerHTML = curIngs.map((n,i)=>`<div class="card-row"><span>${n}</span><svg onclick="curIngs.splice(${i},1);renderRI()" class="trash" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>`).join('');
+}
+function addRI() { const v=document.getElementById('rin').value.trim(); if(v){ curIngs.push(v.charAt(0).toUpperCase()+v.slice(1)); learn(v); document.getElementById('rin').value=''; renderRI(); document.getElementById('rin').focus(); }}
 function showSuggs() {
-    const val = document.getElementById('ein').value.toLowerCase().trim();
-    if(!val) { document.getElementById('rsuggs').innerHTML = ''; return; }
-    
-    let all = [...new Set([...dictWords, ...(db.customDict||[])])];
-    let matches = all.filter(i => i.toLowerCase().includes(val) && !cigs.some(c=>c.toLowerCase()===i.toLowerCase())).slice(0, 6);
-    
-    document.getElementById('rsuggs').innerHTML = matches.map(i => `<span class="tag" onclick="addSugg('${i}')">${i}</span>`).join('');
+    const v = document.getElementById('rin').value.toLowerCase().trim();
+    if(!v) { document.getElementById('rs').innerHTML=''; return; }
+    const all = [...new Set([...Object.keys(catDict), ...(db.customDict||[])])];
+    const m = all.filter(i=>i.toLowerCase().includes(v) && !curIngs.some(c=>c.toLowerCase()===i.toLowerCase())).slice(0,6);
+    document.getElementById('rs').innerHTML = m.map(i=>`<span class="tag" onclick="useSugg('${i}')">${i}</span>`).join('');
+}
+function useSugg(v) { curIngs.push(v.charAt(0).toUpperCase()+v.slice(1)); document.getElementById('rin').value=''; renderRI(); document.getElementById('rs').innerHTML=''; document.getElementById('rin').focus(); }
+function saveR() {
+    const n = document.getElementById('rn').value.trim(); if(!n) return;
+    if(curId){ const d=db.dishes.find(x=>x.id===curId); d.name=n; d.ingredients=curIngs; }
+    else db.dishes.push({id:Date.now(), name:n, ingredients:curIngs});
+    save(); closeModal();
+}
+function delR() { db.dishes = db.dishes.filter(x=>x.id!==curId); save(); closeModal(); }
+
+function learn(w) { 
+    if(!db.customDict) db.customDict = [];
+    let word = w.trim().charAt(0).toUpperCase()+w.trim().slice(1).toLowerCase();
+    if(!db.customDict.includes(word)) db.customDict.push(word);
 }
 
-function addSugg(val) {
-    cigs.push(val.charAt(0).toUpperCase() + val.slice(1));
-    document.getElementById('ein').value = '';
-    showSuggs(); ri();
-    document.getElementById('ein').focus(); 
-}
-
-function ai() { 
-    const v=document.getElementById('ein').value.trim(); 
-    if(v) {
-        cigs.push(v.charAt(0).toUpperCase() + v.slice(1)); 
-        learnWord(v);
-        document.getElementById('ein').value=''; 
-        showSuggs(); ri();
-    }
-    document.getElementById('ein').focus(); 
-}
-
-function sr() { 
-    const n=document.getElementById('en').value.trim(); if(!n) return;
-    if(!db.dishes) db.dishes = [];
-    if(cid){ const d=db.dishes.find(x=>x.id===cid); d.name=n; d.ingredients=cigs; } 
-    else db.dishes.push({id:Date.now(), name:n, ingredients:cigs}); 
-    save(); cm(); 
-}
-
-function dr() { db.dishes=db.dishes.filter(x=>x.id!==cid); save(); cm(); }
-
-function addP() { 
-    const inp = document.getElementById('pi');
-    const v = inp.value.trim(); 
-    if(v){ 
-        if(!db.pantry) db.pantry=[]; 
-        db.pantry.push({name: v.charAt(0).toUpperCase() + v.slice(1), isAvail: true}); 
-        learnWord(v);
-        inp.value=''; 
-        save();
-    }
-    inp.focus(); 
-}
-
-function renderC() {
-    const v=document.getElementById('ci').value.toLowerCase(); if(!v) { document.getElementById('l-cook').innerHTML=''; return; }
-    const m=(db.dishes || []).filter(d=>d.ingredients.some(i=>i.toLowerCase().includes(v)));
-    let h='<div class="card-group">';
-    m.forEach(d=>h+=`<div class="card-row"><b style="font-size:16px;">${d.name}</b></div>`);
-    document.getElementById('l-cook').innerHTML=h+'</div>';
+function renderCook() {
+    const v = document.getElementById('cook-search').value.toLowerCase();
+    if(!v) { document.getElementById('list-cook').innerHTML = ''; return; }
+    const m = db.dishes.filter(d => d.ingredients.some(i => i.toLowerCase().includes(v)));
+    let h = '<div class="card-group">';
+    m.forEach(d => h += `<div class="card-row"><b>${d.name}</b></div>`);
+    document.getElementById('list-cook').innerHTML = h+'</div>';
 }
 </script>
 </body>
